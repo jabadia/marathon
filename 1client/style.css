@@ -1,0 +1,98 @@
+* 
+{ 
+	font-family: "arial"; 
+}
+
+table.calendar
+{
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.week
+{
+	height: 110px;
+
+	margin: 0;
+	padding: 0;
+}
+
+.week-number
+{
+	width: 40px;
+
+	border: 1px solid black;
+	margin: 0;
+	padding: 20px 5px;
+
+	font-size: 28px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.day
+{
+	width:  110px;
+	border: 1px solid black;
+	/*background: #ddd;*/
+
+	margin: 0;
+	padding: 0px;
+}
+
+.week-total
+{
+	width: 300px;
+	border: 1px solid black;
+	background: #eee;
+
+	margin: 0;
+	padding: 5px;
+}
+
+.plan, .actual, .empty
+{
+	margin: 0;
+	padding: 4px;	
+}
+
+.plan
+{
+	height: 32px;
+	top: 0px;
+
+}
+
+.actual, .empty
+{
+	height: 62px;
+	bottom: 0px;
+}
+
+.actual
+{
+	background: #dfd;
+	color: #080;
+}
+
+.empty
+{
+	background: #ddf;
+	color: #008;
+}
+
+.distance
+{
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.time
+{
+	font-size: 14px;
+}
+
+.pace
+{
+	font-size: 12px;
+}

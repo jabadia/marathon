@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="es" ng-app="training">
 <head>
 	<meta charset="UTF-8">
 	<title>Entrenamiento</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/style.css">
+	<script src="lib/angular/angular.js"></script>
+	<script src="js/controllers.js"></script>
+	<script src="js/filters.js"></script>
+	<script src="js/app.js"></script>
 </head>
 <body>
 	
@@ -11,56 +16,24 @@
 		<h1>Entrenamiento</h1>
 	</div>
 
-	<div class="main">
-		<table class="calendar">
-			<tr class="week" id="w0">
-				<td class="week-number">18</td>
-				<td class="day" id="d0_1">
-					<div class="plan">
-						<span class="distance">10.00 km</span>
+	<div class="main" ng-controller="WeekCalendarCtrl">
+		<table class="calendar">			
+			
+			<tr class="week" ng-repeat="week in weeks" id="w{{week.id}}">
+				<td class="week-number">{{week.index}}</td>
+				<td class="day" ng-repeat="day in week.days" id="d{{week.id}}_{{day.id}}">
+					<div class="plan" ng-show="day.plan">
+						<span class="distance">{{day.plan.distance | formatDistance }}</span>
 					</div>
-					<div class="actual">
-						<span class="distance">10.12 km</span><br />
-						<span class="time">57'12"</span> <span class="pace">(5'36"/km)</span>
+					<div class="actual" ng-show="day.actual">
+						<span class="distance">{{day.actual.distance | formatDistance }}</span><br />
+						<span class="time">{{day.actual.time | formatTime }}</span> <span class="pace">({{day.actual.pace | formatTime }}/km)</span>
 					</div>
+					<div class="empty" ng-show="(day.plan && !day.actual)"></div>
 				</td>
-				<td class="day" id="d0_2"></td>
-				<td class="day" id="d0_3">
-					<div class="plan">
-						<span class="distance">10.00 km</span>
-					</div>					
-					<div class="empty">
-					</div>
-				</td>
-				<td class="day" id="d0_4"></td>
-				<td class="day" id="d0_5"></td>
-				<td class="day" id="d0_6">
-					<div class="plan">
-						<span class="distance">10.00 km</span>
-					</div>					
-					<div class="empty">
-					</div>
-				</td>
-				<td class="day" id="d0_7">
-					<div class="plan">
-						<span class="distance">15.00 km</span>
-					</div>					
-					<div class="empty">
-					</div>					
-				</td>
-				<td class="week-total"></td>
+				<td class="week-total"></td>				
 			</tr>
-			<tr class="week" id="w1">
-				<td class="week-number">17</td>
-				<td class="day" id="d1_1"></td>
-				<td class="day" id="d1_2"></td>
-				<td class="day" id="d1_3"></td>
-				<td class="day" id="d1_4"></td>
-				<td class="day" id="d1_5"></td>
-				<td class="day" id="d1_6"></td>
-				<td class="day" id="d1_7"></td>
-				<td class="week-total"></td>
-			</tr>
+
 		</table>
 	</div>
 

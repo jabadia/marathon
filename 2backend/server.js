@@ -28,8 +28,11 @@ app.get( '/', 			       training.root);
 app.get( '/user',		       training.getAllUsers);
 app.get( '/user/:uid',		   training.getUser);
 app.post('/user',			   training.addUser);
+
 app.get( '/competition',       training.getAllCompetitions);
 app.get( '/competition/:cid',  training.getCompetition);
+app.post('/competition',       training.addCompetition);
+
 app.get( '/plan',              training.getAllPlans);
 app.get( '/plan/:pid',		   training.getPlan);
 app.get( '/plan/:pid/:prid',   training.getPlannedRun);

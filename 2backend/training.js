@@ -9,6 +9,7 @@ var dbport   = mongodb.Connection.DEFAULT_PORT;
 
 var db;
 var users;
+var competitions;
 
 
 var mongoClient = new mongodb.MongoClient(new mongodb.Server(dbserver,dbport));
@@ -24,7 +25,18 @@ mongoClient.open(function(err,mongoClient)
 		}
 		console.log("users collection ready!");
 		users = collection;
-	})
+	});
+	db.collection('competitions',{},function(err,collection)
+	{
+		if(err)
+		{
+			console.log("can't open competitions collection: ", err);
+			return;
+		}
+		console.log("competitions collection ready!");
+		competitions = collection;
+	});
+
 });
 
 
@@ -87,15 +99,57 @@ exports.addUser = function(req,res)
 	})
 }
 
+
 exports.getAllCompetitions = function(req,res)
 {
+	competitions.find().toArray(function(err,competitions)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
 
+		return res.json(competitions);
+	});
 }
 
 exports.getCompetition = function(req,res)
 {
+	var cid = req.params.cid;
 
+	users.findOne({_id: new mongodb.ObjectID(cid)}, function(err,competition)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		if(!competition)
+			return res.status(404).send('Error 404: competition not found id=' + cid);
+
+		return res.json(competition);
+	})
 }
+
+exports.addCompetition = function(req,res)
+{
+	var doc = {
+		name:      req.body.name     || "name undefined",
+		date:      req.body.date     || "0000-00-00",
+		distance:  req.body.distance || 0 
+	};
+
+	competitions.insert(doc, {}, function(err,records)
+	{
+		console.log(records);
+
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		var response = {
+			success: true,
+			uid: records[0]._id
+		};
+		res.json(response);		
+	})
+}
+
 
 exports.getAllPlans = function(req,res)
 {

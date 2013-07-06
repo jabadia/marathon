@@ -16,17 +16,28 @@ function err404(req,res)
 	res.status(404).send('invalid api call');
 }
 
-// GET /training
-// GET /training/:id
-// POST /training
+// Competition
+// Plan
+// + PlannedRun
+// User
+// + Run
 
 //app.param('id', training.validateId);
 
-app.get('/', 			training.root);
-// app.get('/training', 		training.getAlltraining);
-// app.get('/training/:id', 	training.getPhoto);
-// app.post('/training', 	training.postPhoto);
-// app.del('/training/:id',  training.deletePhoto);
+app.get( '/', 			       training.root);
+app.get( '/user',		       training.getAllUsers);
+app.get( '/user/:uid',		   training.getUser);
+app.post('/user',			   training.addUser);
+app.get( '/competition',       training.getAllCompetitions);
+app.get( '/competition/:cid',  training.getCompetition);
+app.get( '/plan',              training.getAllPlans);
+app.get( '/plan/:pid',		   training.getPlan);
+app.get( '/plan/:pid/:prid',   training.getPlannedRun);
+app.get( '/user/:uid/run',     training.getAllUserRuns);
+app.post('/user/:uid/run',     training.addUserRun);
+app.get( '/user/:uid/run/:rid',training.getUserRun);
+app.put( '/user/:uid/run/:rid',training.saveUserRun);
+
 app.all('*',            err404);
 
 

@@ -16,6 +16,18 @@ function err404(req,res)
 	res.status(404).send('invalid api call');
 }
 
+app.all('*', function(req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+	// res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+	// res.header('Access-Control-Allow-Headers', 'Content-Type');
+	next();
+});
+
+app.options('*', function(req,res,next) {
+	res.end();
+})
+
 // Competition
 // Plan
 // + PlannedRun

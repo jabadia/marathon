@@ -1,7 +1,10 @@
 "use strict";
 
-function WeekCalendarCtrl($scope)
+function WeekCalendarCtrl($scope, User, Competition)
 {
+	$scope.users = User.query();
+	$scope.competitions = Competition.query();
+
 	$scope.weeks = [];
 
 	for(var i=0; i<18; i++)

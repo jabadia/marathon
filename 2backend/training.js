@@ -36,7 +36,6 @@ mongoClient.open(function(err,mongoClient)
 		console.log("competitions collection ready!");
 		competitions = collection;
 	});
-
 });
 
 

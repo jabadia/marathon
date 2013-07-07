@@ -6,8 +6,10 @@
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="lib/angular/angular.js"></script>
+	<script src="lib/angular/angular-resource.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/filters.js"></script>
+	<script src="js/services.js"></script>
 	<script src="js/app.js"></script>
 </head>
 <body>
@@ -17,6 +19,15 @@
 	</div>
 
 	<div class="main" ng-controller="WeekCalendarCtrl">
+
+		<ul class="users">
+			<li class="user" ng-repeat="user in users">{{user.name}}</li>
+		</ul>
+
+		<ul class="competitions">
+			<li class="competition" ng-repeat="competition in competitions">{{competition.name}}</li>
+		</ul>
+
 		<table class="calendar">			
 			
 			<tr class="week" ng-repeat="week in weeks" id="w{{week.id}}">

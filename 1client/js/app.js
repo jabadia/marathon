@@ -1,3 +1,3 @@
 "use strict";
 
-angular.module('training',['trainingFilters']);
+angular.module('training',['trainingFilters','userService','competitionService']);

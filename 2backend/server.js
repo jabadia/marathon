@@ -18,8 +18,8 @@ function err404(req,res)
 
 app.all('*', function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-	// res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+	res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
 	// res.header('Access-Control-Allow-Headers', 'Content-Type');
 	next();
 });
@@ -36,10 +36,11 @@ app.options('*', function(req,res,next) {
 
 //app.param('id', training.validateId);
 
-app.get( '/', 			       training.root);
-app.get( '/user',		       training.getAllUsers);
-app.get( '/user/:uid',		   training.getUser);
-app.post('/user',			   training.addUser);
+app.get(   '/', 			   training.root);
+app.get(   '/user',		       training.getAllUsers);
+app.get(   '/user/:uid',	   training.getUser);
+app.post(  '/user',			   training.addUser);
+app.delete('/user/:uid',	   training.deleteUser);
 
 app.get( '/competition',       training.getAllCompetitions);
 app.get( '/competition/:cid',  training.getCompetition);

@@ -1,8 +1,37 @@
 "use strict";
 
-function WeekCalendarCtrl($scope, User, Competition)
+function UserListCtrl($scope, User)
 {
 	$scope.users = User.query();
+
+	$scope.toggleAddMode = function()
+	{
+		$scope.addMode = !$scope.addMode;
+		if( $scope.addMode )
+			$scope.newUser = new User();
+	}
+
+	$scope.save = function()
+	{
+		console.log("saving! ", $scope.newUser);
+		$scope.toggleAddMode();
+		$scope.newUser.$save(function()
+		{
+			$scope.users = User.query();
+		});
+	}
+
+	$scope.delete = function(user)
+	{
+		user.$delete(function()
+		{
+			$scope.users = User.query();
+		});
+	}
+}
+
+function WeekCalendarCtrl($scope, Competition)
+{
 	$scope.competitions = Competition.query();
 
 	$scope.weeks = [];

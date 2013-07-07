@@ -18,11 +18,13 @@
 		<h1>Entrenamiento</h1>
 	</div>
 
-	<div class="main" ng-controller="WeekCalendarCtrl">
+	<ul class="users" ng-controller="UserListCtrl">
+		<li class="user" ng-repeat="user in users">{{user.name}}<button ng-click='delete(user)'>x</button></li>
+		<li class="addButton" ng-hide="addMode" ng-click="toggleAddMode()">Click here</li>
+		<li class="newUser" ng-show="addMode"><input type="text" ng-model="newUser.name" /><button ng-click='save()'>Save</button></li>
+	</ul>
 
-		<ul class="users">
-			<li class="user" ng-repeat="user in users">{{user.name}}</li>
-		</ul>
+	<div class="main" ng-controller="WeekCalendarCtrl">
 
 		<ul class="competitions">
 			<li class="competition" ng-repeat="competition in competitions">{{competition.name}}</li>

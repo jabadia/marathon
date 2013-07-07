@@ -98,6 +98,22 @@ exports.addUser = function(req,res)
 	})
 }
 
+exports.deleteUser = function(req,res)
+{
+	var uid = req.params.uid;
+
+	users.remove({_id: new mongodb.ObjectID(uid)}, function(err,removed)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		if(!removed)
+			return res.status(404).send('Error 404: user not found id=' + uid);
+
+		return res.json(removed);
+	})
+}
+
 
 exports.getAllCompetitions = function(req,res)
 {

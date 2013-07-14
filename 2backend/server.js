@@ -49,7 +49,10 @@ app.post('/competition',       training.addCompetition);
 
 app.get( '/plan',              training.getAllPlans);
 app.get( '/plan/:pid',		   training.getPlan);
+app.post('/plan',			   training.addPlan);
+app.put( '/plan/:pid',		   training.savePlan);
 app.get( '/plan/:pid/:prid',   training.getPlannedRun);
+app.put( '/plan/:pid/:prid',   training.savePlannedRun);
 app.get( '/user/:uid/run',     training.getAllUserRuns);
 app.post('/user/:uid/run',     training.addUserRun);
 app.get( '/user/:uid/run/:rid',training.getUserRun);

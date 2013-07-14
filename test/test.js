@@ -13,6 +13,7 @@ var dbport   = mongodb.Connection.DEFAULT_PORT;
 var db;
 var users;
 var competitions;
+var plans;
 
 
 describe('Backend REST API Test', function()
@@ -32,7 +33,7 @@ describe('Backend REST API Test', function()
 		mongoClient.open(function(err,mongoClient)
 		{
 			db = mongoClient.db(dbname);
-			async.map(['users','competitions'], 
+			async.map(['users','competitions','plans'], 
 				function(collection_name, callback)
 				{
 					db.collection(collection_name,{},callback);
@@ -44,6 +45,7 @@ describe('Backend REST API Test', function()
 
 					users        = results[0];
 					competitions = results[1];
+					plans        = results[2];
 
 					done();
 				}
@@ -211,5 +213,44 @@ describe('Backend REST API Test', function()
 			});
 		});
 	});
+
+	describe('GET /plan', function()
+	{
+		before(function(done)
+		{
+			plans.remove({}, function(err,removed)
+			{
+				assert.equal(err,null, "failed to clear db: " + err);
+
+				request.post({
+					url: url + '/plan', 
+					form: { 
+						name: '18 week training for NYC Marathon', 
+						distance: 42.195,
+						weeks: 18
+					}
+				}, function(err,resp)
+				{				
+					done();
+				});
+			});
+		});
+
+		after(function(done)
+		{
+			done();
+		});
+
+		it("should return an array of plans", function(done)
+		{
+			request.get({url: url + '/plan'}, function(err,resp)
+			{				
+				var data = JSON.parse(resp.body);
+				assert.equal(data.length,1, "should return one element");
+				done();
+			});
+		});
+
+	})
 
 });

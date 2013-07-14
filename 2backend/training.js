@@ -2,6 +2,7 @@
 
 var request = require('request');
 var mongodb = require('mongodb');
+var async   = require('async');
 
 var dbname   = "training";
 var dbserver = "localhost";
@@ -10,32 +11,29 @@ var dbport   = mongodb.Connection.DEFAULT_PORT;
 var db;
 var users;
 var competitions;
+var plans;
 
 
 var mongoClient = new mongodb.MongoClient(new mongodb.Server(dbserver,dbport));
 mongoClient.open(function(err,mongoClient)
 {
 	db = mongoClient.db(dbname);
-	db.collection('users',{},function(err,collection)
-	{
-		if(err)
+	async.map(['users','competitions','plans'], 
+		function(collection_name, callback)
 		{
-			console.log("can't open users collection: ", err);
-			return;
-		}
-		console.log("users collection ready!");
-		users = collection;
-	});
-	db.collection('competitions',{},function(err,collection)
-	{
-		if(err)
+			db.collection(collection_name,{},callback);
+		},
+		function(err,results)
 		{
-			console.log("can't open competitions collection: ", err);
-			return;
+			if(err)
+				console.log("can't open collection: " + err);
+
+			users        = results[0];
+			competitions = results[1];
+			plans        = results[2];
+
 		}
-		console.log("competitions collection ready!");
-		competitions = collection;
-	});
+	);
 });
 
 
@@ -48,6 +46,12 @@ exports.root = function (req,res)
 		"\nlatest:  " + new Date(parseInt(req.latest_request))
 	);
 }
+
+// ///////////////////////////////////////////////////////////////////////
+//
+//                                  users
+//
+// ///////////////////////////////////////////////////////////////////////
 
 exports.getAllUsers = function(req,res)
 {
@@ -141,6 +145,12 @@ exports.deleteUser = function(req,res)
 }
 
 
+// ///////////////////////////////////////////////////////////////////////
+//
+//                               competitions
+//
+// ///////////////////////////////////////////////////////////////////////
+
 exports.getAllCompetitions = function(req,res)
 {
 	competitions.find().toArray(function(err,competitions)
@@ -191,13 +201,63 @@ exports.addCompetition = function(req,res)
 	})
 }
 
+// ///////////////////////////////////////////////////////////////////////
+//
+//                                  plans
+//
+// ///////////////////////////////////////////////////////////////////////
 
 exports.getAllPlans = function(req,res)
 {
+	plans.find().toArray(function(err,plans)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
 
+		return res.json(plans);
+	});
 }
 
 exports.getPlan = function(req,res)
+{
+	var pid = req.params.pid;
+
+	plans.findOne({_id: new mongodb.ObjectID(pid)}, function(err,plan)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		if(!plan)
+			return res.status(404).send('Error 404: plan not found id=' + pid);
+
+		return res.json(plan);
+	})
+}
+
+exports.addPlan = function(req,res)
+{
+	var doc = {
+		name:         req.body.name || "name undefined",
+		distance:     req.body.distance || 10.0,
+		weeks:        req.body.weeks || 18
+	};
+
+	plans.insert(doc, {}, function(err,records)
+	{
+		console.log(records);
+
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		var response = {
+			success: true,
+			uid: records[0]._id
+		};
+		res.json(response);		
+	})
+}
+
+exports.savePlan = function(req,res)
 {
 
 }
@@ -206,6 +266,17 @@ exports.getPlannedRun = function(req,res)
 {
 
 }
+
+exports.savePlannedRun = function(req,res)
+{
+
+}
+
+// ///////////////////////////////////////////////////////////////////////
+//
+//                               user runs
+//
+// ///////////////////////////////////////////////////////////////////////
 
 exports.getAllUserRuns = function(req,res)
 {

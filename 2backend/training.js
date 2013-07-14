@@ -166,7 +166,7 @@ exports.getCompetition = function(req,res)
 {
 	var cid = req.params.cid;
 
-	users.findOne({_id: new mongodb.ObjectID(cid)}, function(err,competition)
+	competitions.findOne({_id: new mongodb.ObjectID(cid)}, function(err,competition)
 	{
 		if(err)
 			return res.status(500).send('Error 500: ' + err);

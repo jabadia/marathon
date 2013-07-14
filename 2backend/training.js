@@ -98,6 +98,32 @@ exports.addUser = function(req,res)
 	})
 }
 
+exports.modifyUser = function(req,res)
+{
+	var uid = req.params.uid;
+
+	var doc = {
+		name:         req.body.name || "name undefined",
+		birthdate:    req.body.birthdate || "0000-00-00",
+	};
+
+	users.update({_id: new mongodb.ObjectID(uid)}, doc, { upsert: false }, function(err,records)
+	{
+		console.log(err);
+		console.log(records);
+		if( err )
+			return res.status(500).send('Error 500: ' + err);
+
+		if( records == 0)
+			return res.status(404).send('Error 404: ' + uid + ' not found');
+
+		var response = {
+			success: true,
+		}
+		res.json(response);		
+	})
+}
+
 exports.deleteUser = function(req,res)
 {
 	var uid = req.params.uid;

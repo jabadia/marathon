@@ -40,6 +40,7 @@ app.get(   '/', 			   training.root);
 app.get(   '/user',		       training.getAllUsers);
 app.get(   '/user/:uid',	   training.getUser);
 app.post(  '/user',			   training.addUser);
+app.put(   '/user/:uid',       training.modifyUser);
 app.delete('/user/:uid',	   training.deleteUser);
 
 app.get( '/competition',       training.getAllCompetitions);

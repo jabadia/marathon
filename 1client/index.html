@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="css/style.css">
 	<script src="lib/angular/angular.js"></script>
 	<script src="lib/angular/angular-resource.js"></script>
+	<script src="lib/angular/angular-cookies.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/filters.js"></script>
 	<script src="js/services.js"></script>
@@ -18,9 +19,14 @@
 		<h1>Entrenamiento</h1>
 	</div>
 
+	<ul>
+		<li>Selected User: {{selectedUserId|json}}</li>
+		<li>Selected Competition: {{selectedCompetitionId|json}}</li>
+	</ul>
+
 	<ul class="users" ng-controller="UserListCtrl">
-		<li class="user" ng-repeat="user in users">
-			<button ng-hide="user.id==selectedUser.id" ng-click='select(user)'>o</button>
+		<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}">
+			<button ng-hide="user._id==selectedUserId" ng-click='select(user)'>o</button>
 			{{user.name}}, {{user.birthdate}}<button ng-click='delete(user)'>x</button>
 		</li>
 		<li ng-hide="addMode" class="addButton">
@@ -30,14 +36,18 @@
 			<input type="text" ng-model="newUser.name" />
 			<input type="date" ng-model="newUser.birthdate" />
 			<button ng-click='save()'>Save</button>
+			<button ng-click='toggleAddMode()'>Cancel</button>
+		</li>
+	</ul>
+
+	<ul class="competitions" ng-controller="CompetitionListCtrl">
+		<li class="competition" ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}">
+			<button ng-hide="competition._id==selectedCompetitionId" ng-click='select(competition)'>o</button>
+			{{competition.name}}, {{competition.date}}
 		</li>
 	</ul>
 
 	<div class="main" ng-controller="WeekCalendarCtrl">
-
-		<ul class="competitions">
-			<li class="competition" ng-repeat="competition in competitions">{{competition.name}}</li>
-		</ul>
 
 		<table class="calendar">			
 			

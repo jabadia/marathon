@@ -1,6 +1,6 @@
 "use strict";
 
-function UserListCtrl($scope, User)
+function UserListCtrl($scope, $rootScope, $cookies, User)
 {
 	$scope.users = User.query();
 
@@ -28,12 +28,27 @@ function UserListCtrl($scope, User)
 			$scope.users = User.query();
 		});
 	}
+
+	$scope.select = function(user)
+	{
+		$rootScope.selectedUserId = user._id;
+		$cookies.selectedUserId = user._id;
+	}
 }
 
-function WeekCalendarCtrl($scope, Competition)
+function CompetitionListCtrl($scope, $rootScope, $cookies, Competition)
 {
 	$scope.competitions = Competition.query();
 
+	$scope.select = function(competition)
+	{
+		$rootScope.selectedCompetitionId = competition._id;
+		$cookies.selectedCompetitionId = competition._id;
+	}
+}
+
+function WeekCalendarCtrl($scope, $rootScope)
+{
 	$scope.weeks = [];
 
 	for(var i=0; i<18; i++)

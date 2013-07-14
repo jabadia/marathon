@@ -96,3 +96,8 @@ table.calendar
 {
 	font-size: 12px;
 }
+
+.selected
+{
+	font-weight: bold;
+}

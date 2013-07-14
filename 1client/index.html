@@ -22,6 +22,7 @@
 	<ul>
 		<li>Selected User: {{selectedUserId|json}}</li>
 		<li>Selected Competition: {{selectedCompetitionId|json}}</li>
+		<li>Selected Plan: {{selectedPlanId|json}}</li>
 	</ul>
 
 	<ul class="users" ng-controller="UserListCtrl">
@@ -44,6 +45,13 @@
 		<li class="competition" ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}">
 			<button ng-hide="competition._id==selectedCompetitionId" ng-click='select(competition)'>o</button>
 			{{competition.name}}, {{competition.date}}
+		</li>
+	</ul>
+
+	<ul class="plans" ng-controller="PlanListCtrl">
+		<li class="plan" ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}">
+			<button ng-hide="plan._id==selectedPlanId" ng-click='select(plan)'>o</button>
+			{{plan.name}}, {{plan.distance|formatDistance}}, {{plan.weeks}} semanas
 		</li>
 	</ul>
 

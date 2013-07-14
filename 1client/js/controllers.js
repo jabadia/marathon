@@ -47,7 +47,18 @@ function CompetitionListCtrl($scope, $rootScope, $cookies, Competition)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope)
+function PlanListCtrl($scope, $rootScope, $cookies, Plan)
+{
+	$scope.plans = Plan.query();
+
+	$scope.select = function(plan)
+	{
+		$rootScope.selectedPlanId = plan._id;
+		$cookies.selectedPlanId = plan._id;
+	}
+}
+
+function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan)
 {
 	$scope.weeks = [];
 

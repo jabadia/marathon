@@ -20,3 +20,12 @@ angular.module("competitionService", ['ngResource']).
 		);
 	});
 
+angular.module("planService", ['ngResource']).
+	factory("Plan", function($resource)
+	{
+		return $resource(
+			api_url + "/plan/:pid",
+			{ pid: "@_id" }
+		);
+	});
+

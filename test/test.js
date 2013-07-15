@@ -82,7 +82,7 @@ describe('Backend REST API Test', function()
 			request.get({url: url + '/user'}, function(err,resp)
 			{				
 				var data = JSON.parse(resp.body);
-				assert.equal(data.length,1, "should return one element");
+				assert.equal(data.length,1, "should return an array with one element");
 				done();
 			});
 		});
@@ -203,7 +203,7 @@ describe('Backend REST API Test', function()
 			request.get({url: url + '/competition'}, function(err,resp)
 			{				
 				var data = JSON.parse(resp.body);
-				assert.equal(data.length,1, "should return one element");
+				assert.equal(data.length,1, "should return an array with one element");
 				done();
 			});
 		});
@@ -241,7 +241,7 @@ describe('Backend REST API Test', function()
 			request.get({url: url + '/plan'}, function(err,resp)
 			{				
 				var data = JSON.parse(resp.body);
-				assert.equal(data.length,1, "should return one element");
+				assert.equal(data.length,1, "should return an array with one element");
 				done();
 			});
 		});

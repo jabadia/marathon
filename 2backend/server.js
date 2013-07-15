@@ -36,29 +36,29 @@ app.options('*', function(req,res,next) {
 
 //app.param('id', training.validateId);
 
-app.get(   '/', 			   training.root);
-app.get(   '/user',		       training.getAllUsers);
-app.get(   '/user/:uid',	   training.getUser);
-app.post(  '/user',			   training.addUser);
-app.put(   '/user/:uid',       training.modifyUser);
-app.delete('/user/:uid',	   training.deleteUser);
+app.get(   '/', 			       training.root);
+app.get(   '/user',		           training.getAllUsers);
+app.get(   '/user/:uid',	       training.getUser);
+app.post(  '/user',			       training.addUser);
+app.put(   '/user/:uid',           training.modifyUser);
+app.delete('/user/:uid',	       training.deleteUser);
 
-app.get( '/competition',       training.getAllCompetitions);
-app.get( '/competition/:cid',  training.getCompetition);
-app.post('/competition',       training.addCompetition);
+app.get(   '/competition',         training.getAllCompetitions);
+app.get(   '/competition/:cid',    training.getCompetition);
+app.post(  '/competition',         training.addCompetition);
 
-app.get( '/plan',              training.getAllPlans);
-app.get( '/plan/:pid',		   training.getPlan);
-app.post('/plan',			   training.addPlan);
-app.put( '/plan/:pid',		   training.savePlan);
-app.get( '/plan/:pid/:prid',   training.getPlannedRun);
-app.put( '/plan/:pid/:prid',   training.savePlannedRun);
-app.get( '/user/:uid/run',     training.getAllUserRuns);
-app.post('/user/:uid/run',     training.addUserRun);
-app.get( '/user/:uid/run/:rid',training.getUserRun);
-app.put( '/user/:uid/run/:rid',training.saveUserRun);
+app.get(   '/plan',                training.getAllPlans);
+app.get(   '/plan/:pid',		   training.getPlan);
+app.post(  '/plan',			       training.addPlan);
+app.put(   '/plan/:pid',		   training.savePlan);
+app.get(   '/plan/:pid/:prid',     training.getPlannedRun);
+app.put(   '/plan/:pid/:prid',     training.savePlannedRun);
+app.get(   '/user/:uid/run',       training.getAllUserRuns);
+app.post(  '/user/:uid/run',       training.addUserRun);
+app.get(   '/user/:uid/run/:rid',  training.getUserRun);
+app.put(   '/user/:uid/run/:rid',  training.saveUserRun);
 
-app.all('*',            err404);
+app.all('*', err404);
 
 
 var serverport = process.env.PORT || 4740;

@@ -59,6 +59,7 @@
 			<tr class="week" ng-repeat="week in weeks" id="w{{week.id}}">
 				<td class="week-number">{{week.index}}</td>
 				<td class="day" ng-repeat="day in week.days" id="d{{week.id}}_{{day.id}}">
+					<span class="date">{{day.date| formatDate}}</span>
 					<div class="plan" ng-show="day.plan">
 						<span class="distance">{{day.plan.distance | formatDistance }}</span>
 					</div>

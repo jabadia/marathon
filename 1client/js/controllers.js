@@ -58,26 +58,124 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan)
+function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 {
 	$scope.weeks = [];
 
-	for(var i=0; i<18; i++)
+	console.log("WeekCalendarCtrl");
+
+	var updateWeeks = function($scope)
 	{
-		var week = {
-			id: i,
-			index: 18-i,
-			days: []
-		}
-		for(var day_id=0; day_id<7; day_id++)
+		console.log($scope.user);
+		console.log($scope.competition);
+		console.log($scope.plan);
+
+		$scope.weeks = [];
+
+		if( !$scope.competition._id && !$scope.plan._id && !$scope.user._id)
+			return;
+
+		if( $scope.competition._id && $scope.plan._id )
 		{
-			var day = {
-				id: day_id
+			var competitionDate = Utils.dateFromString( $scope.competition.date );
+			var today = Utils.today();
+
+			console.log(today);
+			console.log(competitionDate);
+
+			var firstMonday = Utils.datePlusDays(Utils.mondayFromDate(today),-14);
+			var competitionMonday = Utils.mondayFromDate(competitionDate);
+
+			var daysBetween = Utils.daysBetween(firstMonday,competitionMonday);
+			var weeksBetween = daysBetween / 7;
+
+			console.log(daysBetween, weeksBetween);
+
+			var firstDayIndex = Math.floor(daysBetween);
+			var firstWeekIndex = Math.floor(weeksBetween);
+
+			var date = firstMonday;
+			for( var w = firstWeekIndex; w >= 0; w--)
+			{
+				var week = {
+					id: w,
+					index: w,
+					days: []
+				}
+				for( var i=0; i<7; i++ )
+				{
+					var day = {
+						id: i,
+						date: date
+					}
+					date = Utils.datePlusDays(date,1);
+					week.days.push(day);
+				}
+				$scope.weeks.push(week);
 			}
-			week.days.push(day);
+
 		}
-		$scope.weeks.push(week);
+
+/*
+		for(var i=0; i<18; i++)
+		{
+			var week = {
+				id: i,
+				index: 18-i,
+				days: []
+			}
+			for(var day_id=0; day_id<7; day_id++)
+			{
+				var day = {
+					id: day_id
+				}
+				week.days.push(day);
+			}
+			$scope.weeks.push(week);
+		}
+*/
 	}
+	/*	
+	if( $rootScope.selectedUserId )
+		$scope.user = User.get({uid: $rootScope.selectedUserId});
+
+	if( $rootScope.selectedCompetitionId )
+		$scope.competition = Competition.get({cid: $rootScope.selectedCompetitionId});
+
+	if( $rootScope.selectedPlanId )
+		$scope.plan = Plan.get({pid: $rootScope.selectedPlanId});
+	*/
+
+	$rootScope.$watch('selectedUserId', function(newId,oldId)
+	{
+		console.log("changed from",oldId,"to",newId);
+		if( $rootScope.selectedUserId )
+			$scope.user = User.get({uid: $rootScope.selectedUserId}, function()
+			{
+				updateWeeks($scope);
+			});
+	});
+
+	$rootScope.$watch('selectedCompetitionId', function(newId,oldId)
+	{
+		console.log("changed from",oldId,"to",newId);
+		if( $rootScope.selectedCompetitionId )
+			$scope.competition = Competition.get({cid: $rootScope.selectedCompetitionId}, function()
+			{
+				updateWeeks($scope);
+			});
+	});
+
+	$rootScope.$watch('selectedPlanId', function(newId,oldId)
+	{
+		console.log("changed from",oldId,"to",newId);
+		if( $rootScope.selectedPlanId )
+			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			{
+				updateWeeks($scope);
+			});
+	});
+
 
 	/*
 	)	

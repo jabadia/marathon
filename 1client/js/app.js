@@ -1,9 +1,13 @@
 "use strict";
 
-var app = angular.module('training',['trainingFilters','userService','competitionService', 'planService','ngCookies']);
+var app = angular.module('training',['trainingFilters','userService','competitionService', 'planService','ngCookies', 'utilityService']);
 
 app.run(function($rootScope, $cookies, User, Competition, Plan)
 {	
+	$rootScope.selectedUserId = null;
+	$rootScope.selectedCompetitionId = null;
+	$rootScope.selectedPlanId = null;
+
 	// check that the stored ids still exist
 	User.get({ uid:  $cookies.selectedUserId || ""}, function(user)
 	{

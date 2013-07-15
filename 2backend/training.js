@@ -188,7 +188,7 @@ exports.addCompetition = function(req,res)
 
 		var response = {
 			success: true,
-			uid: records[0]._id
+			cid: records[0]._id
 		};
 		res.json(response);		
 	})
@@ -232,7 +232,8 @@ exports.addPlan = function(req,res)
 	var doc = {
 		name:         req.body.name || "name undefined",
 		distance:     req.body.distance || 10.0,
-		weeks:        req.body.weeks || 18
+		weeks:        req.body.weeks || 18,
+		plannedRuns:  {}
 	};
 
 	plans.insert(doc, {}, function(err,records)
@@ -244,7 +245,7 @@ exports.addPlan = function(req,res)
 
 		var response = {
 			success: true,
-			uid: records[0]._id
+			pid: records[0]._id
 		};
 		res.json(response);		
 	})
@@ -262,7 +263,25 @@ exports.getPlannedRun = function(req,res)
 
 exports.savePlannedRun = function(req,res)
 {
+	var pid  = req.params.pid;
+	var prid = req.params.prid;
 
+	var plannedRun = {
+		distance: 	req.body.distance || 0.0,
+		comments:   req.body.comments
+	};
+	var doc = {};
+	doc['plannedRuns.' + prid] = plannedRun;
+	plans.update({_id: new mongodb.ObjectID(pid)}, {$set:doc}, {}, function(err,count)
+	{
+		if(err)
+			return res.status(500).send('Error 500: ' + err);
+
+		var response = {
+			success: true,
+		};
+		res.json(response);		
+	})
 }
 
 // ///////////////////////////////////////////////////////////////////////

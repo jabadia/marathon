@@ -18,4 +18,15 @@ angular.module("trainingFilters",[]).
 			if(sec < 10) sec = "0" + sec;
 			return min + "'" + sec + '"';
 		}
+	}).
+	filter('formatDate',function()
+	{
+		return function(input)
+		{
+			var year = input.getFullYear();
+			var month = input.getMonth()+1;
+			var day = input.getDate();
+
+			return [day,month,year].join('-');
+		}		
 	});

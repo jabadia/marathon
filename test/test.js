@@ -225,8 +225,36 @@ describe('Backend REST API Test', function()
 						weeks: 18
 					}
 				}, function(err,resp)
-				{				
-					done();
+				{		
+					var data = JSON.parse(resp.body);
+					request.put({
+						url: url + '/plan/' + data.pid + '/0',
+						form: {
+							distance: 42.195,
+							comments: 'Competition Day!'
+						}
+					}, function(err,resp)
+					{
+						request.put({
+							url: url + '/plan/' + data.pid + '/2',
+							form: {
+								distance: 5.000,
+								comments: 'Slow run before grand day'
+							}
+						}, function(err,resp)
+						{							
+							request.put({
+								url: url + '/plan/' + data.pid + '/5',
+								form: {
+									distance: 7.000,
+									comments: 'Easy'
+								}
+							}, function(err,resp)
+							{
+								done();
+							});
+						});
+					})		
 				});
 			});
 		});
@@ -242,6 +270,12 @@ describe('Backend REST API Test', function()
 			{				
 				var data = JSON.parse(resp.body);
 				assert.equal(data.length,1, "should return an array with one element");
+				var plan = data[0];
+				assert.ok(plan.hasOwnProperty('name'),'plan should have a name');
+				assert.ok(plan.hasOwnProperty('distance'),'plan should have a distance');
+				assert.ok(plan.hasOwnProperty('weeks'),'plan should have a number of weeks');
+				assert.ok(plan.hasOwnProperty('plannedRuns'),'plan should have an array of planned runs');
+				assert.equal(Object.keys(plan.plannedRuns).length,3,'plan should have 3 planned runs');
 				done();
 			});
 		});

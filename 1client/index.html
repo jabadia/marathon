@@ -26,8 +26,7 @@
 	</ul>
 
 	<ul class="users" ng-controller="UserListCtrl">
-		<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}">
-			<button ng-hide="user._id==selectedUserId" ng-click='select(user)'>o</button>
+		<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}" ng-click='select(user)'>
 			{{user.name}}, {{user.birthdate}}<button ng-click='delete(user)'>x</button>
 		</li>
 		<li ng-hide="addMode" class="addButton">
@@ -42,15 +41,13 @@
 	</ul>
 
 	<ul class="competitions" ng-controller="CompetitionListCtrl">
-		<li class="competition" ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}">
-			<button ng-hide="competition._id==selectedCompetitionId" ng-click='select(competition)'>o</button>
+		<li class="competition" ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}" ng-click='select(competition)'>
 			{{competition.name}}, {{competition.date}}
 		</li>
 	</ul>
 
 	<ul class="plans" ng-controller="PlanListCtrl">
-		<li class="plan" ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}">
-			<button ng-hide="plan._id==selectedPlanId" ng-click='select(plan)'>o</button>
+		<li class="plan" ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}" ng-click='select(plan)'>
 			{{plan.name}}, {{plan.distance|formatDistance}}, {{plan.weeks}} semanas
 		</li>
 	</ul>

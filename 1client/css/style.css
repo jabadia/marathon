@@ -101,3 +101,8 @@ table.calendar
 {
 	font-weight: bold;
 }
+
+li
+{
+	cursor: pointer;
+}

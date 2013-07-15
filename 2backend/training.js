@@ -4,24 +4,18 @@ var request = require('request');
 var mongodb = require('mongodb');
 var async   = require('async');
 
-var dbname   = "training";
-var dbserver = "localhost";
-var dbport   = mongodb.Connection.DEFAULT_PORT;
+var dburi    = "mongodb://jabadia:jabadia@dharma.mongohq.com:10011/training"
 
-var db;
 var users;
 var competitions;
 var plans;
 
-
-var mongoClient = new mongodb.MongoClient(new mongodb.Server(dbserver,dbport));
-mongoClient.open(function(err,mongoClient)
+mongodb.Db.connect(dburi, function(err,client)
 {
-	db = mongoClient.db(dbname);
 	async.map(['users','competitions','plans'], 
 		function(collection_name, callback)
 		{
-			db.collection(collection_name,{},callback);
+			client.collection(collection_name,{},callback);
 		},
 		function(err,results)
 		{
@@ -31,7 +25,6 @@ mongoClient.open(function(err,mongoClient)
 			users        = results[0];
 			competitions = results[1];
 			plans        = results[2];
-
 		}
 	);
 });

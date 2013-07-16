@@ -106,3 +106,13 @@ li
 {
 	cursor: pointer;
 }
+
+td.today
+{
+	background: #cfc;
+}
+
+.currentweek .week-number
+{
+	background: #cfc;
+}

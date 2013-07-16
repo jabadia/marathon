@@ -71,6 +71,7 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 		console.log($scope.plan);
 
 		$scope.weeks = [];
+		$scope.today = Utils.today();
 
 		if( !$scope.competition._id && !$scope.plan._id && !$scope.user._id)
 			return;
@@ -78,12 +79,11 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 		if( $scope.competition._id && $scope.plan._id )
 		{
 			var competitionDate = Utils.dateFromString( $scope.competition.date );
-			var today = Utils.today();
 
-			console.log(today);
+			console.log($scope.today);
 			console.log(competitionDate);
 
-			var firstMonday = Utils.datePlusDays(Utils.mondayFromDate(today),-14);
+			var firstMonday = Utils.datePlusDays(Utils.mondayFromDate($scope.today),-14);
 			var competitionMonday = Utils.mondayFromDate(competitionDate);
 
 			var daysBetween = Utils.daysBetween(firstMonday,competitionMonday);
@@ -91,26 +91,48 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 
 			console.log(daysBetween, weeksBetween);
 
-			var firstDayIndex = Math.floor(daysBetween);
+			var firstDayIndex = Utils.daysBetween(firstMonday,competitionDate);
 			var firstWeekIndex = Math.floor(weeksBetween);
 
 			var date = firstMonday;
+			var dayIndex = firstDayIndex;
 			for( var w = firstWeekIndex; w >= 0; w--)
 			{
 				var week = {
-					id: w,
 					index: w,
 					days: []
 				}
 				for( var i=0; i<7; i++ )
 				{
 					var day = {
-						id: i,
+						index: dayIndex,
 						date: date
 					}
-					date = Utils.datePlusDays(date,1);
+					var plannedRun = $scope.plan.plannedRuns[dayIndex];
+					if( plannedRun )
+					{
+						day.plan = {};
+						day.plan.distance = plannedRun.distance;
+					}
+
+					if( $scope.today.getTime() == day.date.getTime() )
+					{
+						day.isToday = true;
+						week.isCurrentWeek = true;
+					}
+
 					week.days.push(day);
+
+					date = Utils.datePlusDays(date,1);
+					dayIndex -= 1;
 				}
+				week.plan = {
+					distance: 0.0
+				};
+				week.days.forEach(function(day)
+				{
+					week.plan.distance += day.plan? day.plan.distance : 0;
+				});
 				$scope.weeks.push(week);
 			}
 

@@ -174,9 +174,9 @@ exports.getCompetition = function(req,res)
 exports.addCompetition = function(req,res)
 {
 	var doc = {
-		name:      req.body.name     || "name undefined",
-		date:      req.body.date     || "0000-00-00",
-		distance:  req.body.distance || 0 
+		name:      req.body.name             || "name undefined",
+		date:      req.body.date             || "0000-00-00",
+		distance:  Number(req.body.distance) || 0 
 	};
 
 	competitions.insert(doc, {}, function(err,records)
@@ -230,9 +230,9 @@ exports.getPlan = function(req,res)
 exports.addPlan = function(req,res)
 {
 	var doc = {
-		name:         req.body.name || "name undefined",
-		distance:     req.body.distance || 10.0,
-		weeks:        req.body.weeks || 18,
+		name:         req.body.name             || "name undefined",
+		distance:     Number(req.body.distance) || 10.0,
+		weeks:        Number(req.body.weeks)    || 18,
 		plannedRuns:  {}
 	};
 
@@ -267,7 +267,7 @@ exports.savePlannedRun = function(req,res)
 	var prid = req.params.prid;
 
 	var plannedRun = {
-		distance: 	req.body.distance || 0.0,
+		distance: 	Number(req.body.distance) || 0.0,
 		comments:   req.body.comments
 	};
 	var doc = {};

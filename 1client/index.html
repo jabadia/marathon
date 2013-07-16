@@ -56,10 +56,10 @@
 
 		<table class="calendar">			
 			
-			<tr class="week" ng-repeat="week in weeks" id="w{{week.id}}">
+			<tr class="week" ng-class="{currentweek: week.isCurrentWeek}" ng-repeat="week in weeks" id="w{{week.index}}">
 				<td class="week-number">{{week.index}}</td>
-				<td class="day" ng-repeat="day in week.days" id="d{{week.id}}_{{day.id}}">
-					<span class="date">{{day.date| formatDate}}</span>
+				<td class="day" ng-class="{today: day.isToday}" ng-repeat="day in week.days" id="d{{day.index}}">
+					<span class="date">{{day.index}} | {{day.date| formatDate}}</span>
 					<div class="plan" ng-show="day.plan">
 						<span class="distance">{{day.plan.distance | formatDistance }}</span>
 					</div>
@@ -69,7 +69,9 @@
 					</div>
 					<div class="empty" ng-show="(day.plan && !day.actual)"></div>
 				</td>
-				<td class="week-total"></td>				
+				<td class="week-total">
+					<span class="distance">{{week.plan.distance | formatDistance }}</span><br />					
+				</td>
 			</tr>
 
 		</table>

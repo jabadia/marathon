@@ -80,8 +80,8 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 		{
 			var competitionDate = Utils.dateFromString( $scope.competition.date );
 
-			console.log($scope.today);
-			console.log(competitionDate);
+			// console.log($scope.today);
+			// console.log(competitionDate);
 
 			var firstMonday = Utils.datePlusDays(Utils.mondayFromDate($scope.today),-14);
 			var competitionMonday = Utils.mondayFromDate(competitionDate);
@@ -89,7 +89,7 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 			var daysBetween = Utils.daysBetween(firstMonday,competitionMonday);
 			var weeksBetween = daysBetween / 7;
 
-			console.log(daysBetween, weeksBetween);
+			// console.log(daysBetween, weeksBetween);
 
 			var firstDayIndex = Utils.daysBetween(firstMonday,competitionDate);
 			var firstWeekIndex = Math.floor(weeksBetween);
@@ -100,13 +100,16 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 			{
 				var week = {
 					index: w,
-					days: []
+					days: [],
+					plan: {	distance: 0.0 },
+					actual: { distance: 0.0, time: 0, pace: 0 }
 				}
 				for( var i=0; i<7; i++ )
 				{
 					var day = {
 						index: dayIndex,
-						date: date
+						date: date,
+						isWeekend: (date.getDay()== 0 || date.getDay()==6)
 					}
 					var plannedRun = $scope.plan.plannedRuns[dayIndex];
 					if( plannedRun )
@@ -117,25 +120,28 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 
 					if( $scope.today.getTime() == day.date.getTime() )
 					{
-						day.isToday = true;
-						week.isCurrentWeek = true;
+						week.isCurrentWeek = day.isToday = true;
 					}
-
 					week.days.push(day);
 
 					date = Utils.datePlusDays(date,1);
 					dayIndex -= 1;
 				}
-				week.plan = {
-					distance: 0.0
-				};
 				week.days.forEach(function(day)
 				{
-					week.plan.distance += day.plan? day.plan.distance : 0;
+					if( day.plan )
+					{
+						week.plan.distance += day.plan.distance;
+					}
+					if( day.actual )
+					{
+						week.actual.distance += day.actual.distance;
+						week.actual.time += day.actual.time;
+						week.actual.pace = week.actual.time / week.actual.distance;
+					}
 				});
 				$scope.weeks.push(week);
 			}
-
 		}
 
 /*

@@ -41,13 +41,13 @@
 	</ul>
 
 	<ul class="competitions" ng-controller="CompetitionListCtrl">
-		<li class="competition" ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}" ng-click='select(competition)'>
+		<li ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}" ng-click='select(competition)'>
 			{{competition.name}}, {{competition.date}}
 		</li>
 	</ul>
 
 	<ul class="plans" ng-controller="PlanListCtrl">
-		<li class="plan" ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}" ng-click='select(plan)'>
+		<li ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}" ng-click='select(plan)'>
 			{{plan.name}}, {{plan.distance|formatDistance}}, {{plan.weeks}} semanas
 		</li>
 	</ul>
@@ -56,21 +56,41 @@
 
 		<table class="calendar">			
 			
-			<tr class="week" ng-class="{currentweek: week.isCurrentWeek}" ng-repeat="week in weeks" id="w{{week.index}}">
+			<tr class="week-header">
+				<th class="week-number"></th>
+				<th class="day">Lunes</th>
+				<th class="day">Martes</th>
+				<th class="day">Miércoles</th>
+				<th class="day">Jueves</th>
+				<th class="day">Viernes</th>
+				<th class="day weekend">Sábado</th>
+				<th class="day weekend">Domingo</th>
+				<th class="week-total">Total</th>
+			</tr>
+
+			<tr class="week" ng-class="{'current-week': week.isCurrentWeek}" ng-repeat="week in weeks" id="w{{week.index}}">
 				<td class="week-number">{{week.index}}</td>
-				<td class="day" ng-class="{today: day.isToday}" ng-repeat="day in week.days" id="d{{day.index}}">
-					<span class="date">{{day.index}} | {{day.date| formatDate}}</span>
+				<td class="day" ng-class="{today: day.isToday, 'weekend': day.isWeekend}" ng-repeat="day in week.days" id="d{{day.index}}">
+					<div class="date">{{day.index}} | {{day.date| formatDate}}</div>
 					<div class="plan" ng-show="day.plan">
 						<span class="distance">{{day.plan.distance | formatDistance }}</span>
 					</div>
 					<div class="actual" ng-show="day.actual">
 						<span class="distance">{{day.actual.distance | formatDistance }}</span><br />
-						<span class="time">{{day.actual.time | formatTime }}</span> <span class="pace">({{day.actual.pace | formatTime }}/km)</span>
+						<span class="time">{{day.actual.time | formatTime }}</span>
+						<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
 					</div>
 					<div class="empty" ng-show="(day.plan && !day.actual)"></div>
 				</td>
 				<td class="week-total">
-					<span class="distance">{{week.plan.distance | formatDistance }}</span><br />					
+					<div class="actual">
+						<span class="distance">{{week.actual.distance | formatDistance }}</span><br />
+						<span class="time">{{week.actual.time | formatTime }}</span>
+						<span class="pace">({{week.actual.pace | formatTime }}/km)</span>
+					</div>
+					<div class="plan">					
+						<span class="distance">{{week.plan.distance | formatDistance }}</span><br />					
+					</div>
 				</td>
 			</tr>
 

@@ -35,9 +35,10 @@ table.calendar
 	width:  110px;
 	border: 1px solid black;
 	/*background: #ddd;*/
+	position: relative;
 
 	margin: 0;
-	padding: 0px;
+	padding: 0;
 }
 
 .week-total
@@ -45,28 +46,37 @@ table.calendar
 	width: 300px;
 	border: 1px solid black;
 	background: #eee;
+	position: relative;
 
 	margin: 0;
-	padding: 5px;
+	padding: 0;
 }
 
-.plan, .actual, .empty
+.plan, .actual, .empty, .date
 {
 	margin: 0;
-	padding: 4px;	
+	padding: 2px;	
+	position: absolute;
+	left:0;
+	right:0;
+}
+
+.date
+{
+	top: 0px;	
+	height: 15px;
 }
 
 .plan
 {
-	height: 32px;
-	top: 0px;
-
+	top: 23px;
+	height: 30px;
 }
 
 .actual, .empty
 {
-	height: 62px;
 	bottom: 0px;
+	height: 55px;
 }
 
 .actual
@@ -112,7 +122,12 @@ td.today
 	background: #cfc;
 }
 
-.currentweek .week-number
+.current-week .week-number
 {
 	background: #cfc;
+}
+
+.weekend
+{
+	background: #fcc;
 }

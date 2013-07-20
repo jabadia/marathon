@@ -31,7 +31,7 @@ mongodb.Db.connect(dburi, function(err,client)
 
 
 
-exports.root = function (req,res) 
+exports.root = function (req,res,next)
 {
 	res.type("text/plain");
 	res.send('api root' + 
@@ -40,40 +40,60 @@ exports.root = function (req,res)
 	);
 }
 
+exports.errorHandler = function(err,req,res,next)
+{
+	console.error(err.stack);
+	res.setHeader('Content-Type', 'application/json');
+	if( err.notFound )
+	{
+		var error = { error: err.message + " " + err.notFound }
+		res.status(404).json(error);
+	}
+	else
+	{
+		var error = { error: 'Internal Server Error'}
+		res.status(500).json(error);
+	}
+}
+
 // ///////////////////////////////////////////////////////////////////////
 //
 //                                  users
 //
 // ///////////////////////////////////////////////////////////////////////
 
-exports.getAllUsers = function(req,res)
+exports.getAllUsers = function(req,res,next)
 {
 	users.find().toArray(function(err,users)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
-
-		return res.json(users);
+			next(err);
+		else
+			return res.json(users);
 	});
 }
 
-exports.getUser = function(req,res)
+exports.getUser = function(req,res,next)
 {
 	var uid = req.params.uid;
 
 	users.findOne({_id: new mongodb.ObjectID(uid)}, function(err,user)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		if(!user)
-			return res.status(404).send('Error 404: user not found id=' + uid);
+		{
+			var error = new Error('user not found');
+			error.notFound = uid;
+			next(error);
+		}
 
 		return res.json(user);
 	})
 }
 
-exports.addUser = function(req,res)
+exports.addUser = function(req,res,next)
 {
 	var doc = {
 		name:         req.body.name || "name undefined",
@@ -85,7 +105,7 @@ exports.addUser = function(req,res)
 		console.log(records);
 
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		var response = {
 			success: true,
@@ -95,7 +115,7 @@ exports.addUser = function(req,res)
 	})
 }
 
-exports.modifyUser = function(req,res)
+exports.modifyUser = function(req,res,next)
 {
 	var uid = req.params.uid;
 
@@ -106,13 +126,15 @@ exports.modifyUser = function(req,res)
 
 	users.update({_id: new mongodb.ObjectID(uid)}, doc, { upsert: false }, function(err,records)
 	{
-		console.log(err);
-		console.log(records);
-		if( err )
-			return res.status(500).send('Error 500: ' + err);
+		if(err)
+			next(err);
 
 		if( records == 0)
-			return res.status(404).send('Error 404: ' + uid + ' not found');
+		{
+			var error = new Error('user not found');
+			error.notFound = uid;
+			next(error);
+		}
 
 		var response = {
 			success: true,
@@ -121,17 +143,21 @@ exports.modifyUser = function(req,res)
 	})
 }
 
-exports.deleteUser = function(req,res)
+exports.deleteUser = function(req,res,next)
 {
 	var uid = req.params.uid;
 
 	users.remove({_id: new mongodb.ObjectID(uid)}, function(err,removed)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		if(!removed)
-			return res.status(404).send('Error 404: user not found id=' + uid);
+		{
+			var error = new Error('user not found');
+			error.notFound = uid;
+			next(error);
+		}
 
 		return res.json(removed);
 	})
@@ -144,34 +170,38 @@ exports.deleteUser = function(req,res)
 //
 // ///////////////////////////////////////////////////////////////////////
 
-exports.getAllCompetitions = function(req,res)
+exports.getAllCompetitions = function(req,res,next)
 {
 	competitions.find().toArray(function(err,competitions)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		return res.json(competitions);
 	});
 }
 
-exports.getCompetition = function(req,res)
+exports.getCompetition = function(req,res,next)
 {
 	var cid = req.params.cid;
 
 	competitions.findOne({_id: new mongodb.ObjectID(cid)}, function(err,competition)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		if(!competition)
-			return res.status(404).send('Error 404: competition not found id=' + cid);
+		{
+			var error = new Error('competition not found');
+			error.notFound = cid;
+			next(error);
+		}
 
 		return res.json(competition);
 	})
 }
 
-exports.addCompetition = function(req,res)
+exports.addCompetition = function(req,res,next)
 {
 	var doc = {
 		name:      req.body.name             || "name undefined",
@@ -184,7 +214,7 @@ exports.addCompetition = function(req,res)
 		console.log(records);
 
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		var response = {
 			success: true,
@@ -200,7 +230,7 @@ exports.addCompetition = function(req,res)
 //
 // ///////////////////////////////////////////////////////////////////////
 
-exports.getAllPlans = function(req,res)
+exports.getAllPlans = function(req,res,next)
 {
 	plans.find().toArray(function(err,plans)
 	{
@@ -211,23 +241,27 @@ exports.getAllPlans = function(req,res)
 	});
 }
 
-exports.getPlan = function(req,res)
+exports.getPlan = function(req,res,next)
 {
 	var pid = req.params.pid;
 
 	plans.findOne({_id: new mongodb.ObjectID(pid)}, function(err,plan)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		if(!plan)
-			return res.status(404).send('Error 404: plan not found id=' + pid);
+		{
+			var error = new Error('plan not found');
+			error.notFound = pid;
+			next(error);
+		}
 
 		return res.json(plan);
 	})
 }
 
-exports.addPlan = function(req,res)
+exports.addPlan = function(req,res,next)
 {
 	var doc = {
 		name:         req.body.name             || "name undefined",
@@ -241,7 +275,7 @@ exports.addPlan = function(req,res)
 		console.log(records);
 
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		var response = {
 			success: true,
@@ -251,17 +285,17 @@ exports.addPlan = function(req,res)
 	})
 }
 
-exports.savePlan = function(req,res)
+exports.savePlan = function(req,res,next)
 {
 
 }
 
-exports.getPlannedRun = function(req,res)
+exports.getPlannedRun = function(req,res,next)
 {
 
 }
 
-exports.savePlannedRun = function(req,res)
+exports.savePlannedRun = function(req,res,next)
 {
 	var pid  = req.params.pid;
 	var prid = req.params.prid;
@@ -275,7 +309,7 @@ exports.savePlannedRun = function(req,res)
 	plans.update({_id: new mongodb.ObjectID(pid)}, {$set:doc}, {}, function(err,count)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			next(err);
 
 		var response = {
 			success: true,
@@ -290,22 +324,22 @@ exports.savePlannedRun = function(req,res)
 //
 // ///////////////////////////////////////////////////////////////////////
 
-exports.getAllUserRuns = function(req,res)
+exports.getAllUserRuns = function(req,res,next)
 {
 
 }
 
-exports.addUserRun = function(req,res)
+exports.addUserRun = function(req,res,next)
 {
 
 }
 
-exports.getUserRun = function(req,res)
+exports.getUserRun = function(req,res,next)
 {
 
 }
 
-exports.saveUserRun = function(req,res)
+exports.saveUserRun = function(req,res,next)
 {
 
 }

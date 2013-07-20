@@ -6,10 +6,8 @@ var	training  = require("./training");
 var app = express();
 
 app.use(express.bodyParser());
-app.use(express.logger('short'));
-// app.use(training.timestampLatestRequest);
+app.use(express.logger({immediate:false, format:'dev'}));
 app.use('/images', express.static(__dirname + '/images'));
-// app.use(training.getToken);
 
 function err404(req,res)
 {
@@ -58,6 +56,9 @@ app.post(  '/user/:uid/run',       training.addUserRun);
 app.get(   '/user/:uid/run/:rid',  training.getUserRun);
 app.put(   '/user/:uid/run/:rid',  training.saveUserRun);
 
+
+app.use( training.errorHandler );
+// app.use( express.errorHandler() );
 app.all('*', err404);
 
 

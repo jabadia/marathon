@@ -66,17 +66,15 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 
 	var updateWeeks = function($scope)
 	{
-		console.log($scope.user);
-		console.log($scope.competition);
-		console.log($scope.plan);
-
 		$scope.weeks = [];
 		$scope.today = Utils.today();
 
-		if( !$scope.competition._id && !$scope.plan._id && !$scope.user._id)
+		if( !($scope.competition && $scope.competition._id) && 
+			!($scope.plan && $scope.plan._id) && 
+			!($scope.user && $scope.user._id))
 			return;
 
-		if( $scope.competition._id && $scope.plan._id )
+		if( $scope.competition && $scope.competition._id && $scope.plan && $scope.plan._id )
 		{
 			var competitionDate = Utils.dateFromString( $scope.competition.date );
 
@@ -182,6 +180,11 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 			{
 				updateWeeks($scope);
 			});
+		else
+		{			
+			$scope.user = null;			
+			updateWeeks($scope);
+		}
 	});
 
 	$rootScope.$watch('selectedCompetitionId', function(newId,oldId)
@@ -192,6 +195,11 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 			{
 				updateWeeks($scope);
 			});
+		else
+		{			
+			$scope.competition = null;			
+			updateWeeks($scope);
+		}
 	});
 
 	$rootScope.$watch('selectedPlanId', function(newId,oldId)
@@ -202,6 +210,11 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 			{
 				updateWeeks($scope);
 			});
+		else
+		{
+			$scope.plan = null;			
+			updateWeeks($scope);
+		}
 	});
 
 

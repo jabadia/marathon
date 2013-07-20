@@ -27,8 +27,18 @@
 
 	<ul class="users" ng-controller="UserListCtrl">
 		<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}" ng-click='select(user)'>
-			{{user.name}}, {{user.birthdate}}<button ng-click='delete(user)'>x</button>
+			<span ng-hide="editUser">
+				{{user.name}}, {{user.birthdate}}
+				<button ng-click='editUser = !editUser'>edit</button>
+			</span>
+			<span ng-show="editUser">
+				<input type="text" ng-model="user.name">
+				<input type="date" ng-model="user.birthdate">
+				<button ng-click='editUser = !editUser'>save</button>
+			</span>
+			<button ng-click='delete(user)'>x</button>
 		</li>
+		<li class="user" ng-click='select({_id:null})'>none</li>
 		<li ng-hide="addMode" class="addButton">
 			<button ng-click="toggleAddMode()">+</button>
 		</li>
@@ -44,12 +54,14 @@
 		<li ng-repeat="competition in competitions" ng-class="{selected: competition._id==selectedCompetitionId}" ng-click='select(competition)'>
 			{{competition.name}}, {{competition.date}}
 		</li>
+		<li ng-click='select({_id:null})'>none</li>
 	</ul>
 
 	<ul class="plans" ng-controller="PlanListCtrl">
 		<li ng-repeat="plan in plans" ng-class="{selected: plan._id==selectedPlanId}" ng-click='select(plan)'>
 			{{plan.name}}, {{plan.distance|formatDistance}}, {{plan.weeks}} semanas
 		</li>
+		<li ng-click='select({_id:null})'>none</li>
 	</ul>
 
 	<div class="main" ng-controller="WeekCalendarCtrl">

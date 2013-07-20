@@ -67,7 +67,7 @@ exports.getAllUsers = function(req,res,next)
 	users.find().toArray(function(err,users)
 	{
 		if(err)
-			next(err);
+			return next(err);
 		else
 			return res.json(users);
 	});
@@ -80,7 +80,7 @@ exports.getUser = function(req,res,next)
 	users.findOne({_id: new mongodb.ObjectID(uid)}, function(err,user)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		if(!user)
 		{
@@ -105,7 +105,7 @@ exports.addUser = function(req,res,next)
 		console.log(records);
 
 		if(err)
-			next(err);
+			return next(err);
 
 		var response = {
 			success: true,
@@ -127,7 +127,7 @@ exports.modifyUser = function(req,res,next)
 	users.update({_id: new mongodb.ObjectID(uid)}, doc, { upsert: false }, function(err,records)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		if( records == 0)
 		{
@@ -150,7 +150,7 @@ exports.deleteUser = function(req,res,next)
 	users.remove({_id: new mongodb.ObjectID(uid)}, function(err,removed)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		if(!removed)
 		{
@@ -175,7 +175,7 @@ exports.getAllCompetitions = function(req,res,next)
 	competitions.find().toArray(function(err,competitions)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		return res.json(competitions);
 	});
@@ -188,7 +188,7 @@ exports.getCompetition = function(req,res,next)
 	competitions.findOne({_id: new mongodb.ObjectID(cid)}, function(err,competition)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		if(!competition)
 		{
@@ -214,7 +214,7 @@ exports.addCompetition = function(req,res,next)
 		console.log(records);
 
 		if(err)
-			next(err);
+			return next(err);
 
 		var response = {
 			success: true,
@@ -248,7 +248,7 @@ exports.getPlan = function(req,res,next)
 	plans.findOne({_id: new mongodb.ObjectID(pid)}, function(err,plan)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		if(!plan)
 		{
@@ -275,7 +275,7 @@ exports.addPlan = function(req,res,next)
 		console.log(records);
 
 		if(err)
-			next(err);
+			return next(err);
 
 		var response = {
 			success: true,
@@ -309,7 +309,7 @@ exports.savePlannedRun = function(req,res,next)
 	plans.update({_id: new mongodb.ObjectID(pid)}, {$set:doc}, {}, function(err,count)
 	{
 		if(err)
-			next(err);
+			return next(err);
 
 		var response = {
 			success: true,

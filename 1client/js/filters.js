@@ -27,6 +27,9 @@ angular.module("trainingFilters",[]).
 			var month = input.getMonth()+1;
 			var day = input.getDate();
 
+			if(month < 10) month = "0" + month;
+			if(day < 10) day = "0" + day;
+
 			return [day,month,year].join('-');
 		}		
 	});

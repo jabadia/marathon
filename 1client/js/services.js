@@ -25,7 +25,19 @@ angular.module("planService", ['ngResource']).
 	{
 		return $resource(
 			api_url + "/plan/:pid",
-			{ pid: "@_id" }
+			{ pid: "@_id" }			
+		);
+	});
+
+angular.module("plannedRunService", ['ngResource']).
+	factory("PlannedRun", function($resource)
+	{
+		return $resource(
+			api_url + "/plan/:pid/:prid",
+			{ pid: "@pid", prid: "@prid" },
+			{
+				'save': { method: 'PUT'}
+			}
 		);
 	});
 

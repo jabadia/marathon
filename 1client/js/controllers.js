@@ -58,11 +58,53 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
+function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, Utils)
 {
+	console.log("WeekCalendarCtrl");
+
 	$scope.weeks = [];
 
-	console.log("WeekCalendarCtrl");
+	$scope.addPlannedRun = function(day)
+	{
+		day.newPlannedRun = new PlannedRun(
+		{ 
+			pid 	: $scope.plan._id,
+			prid 	: day.index,
+			distance: 0, 
+			comments: "" 
+		});
+	};
+
+	$scope.savePlannedRun = function(day)
+	{
+		console.log("saving ", day.newPlannedRun);
+		day.newPlannedRun.$save(function(){
+			console.log("saved!!");
+			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newPlannedRun
+			delete day.newPlannedRun;
+			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			{
+				updateWeeks($scope);
+			});
+		});
+	}	
+
+	$scope.deletePlannedRun = function(day)
+	{
+		var plannedRun = new PlannedRun(
+		{
+			pid: $scope.plan._id,
+			prid: day.index
+		});
+		plannedRun.$delete(function()
+		{
+			console.log("deleted!!");
+			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			{
+				updateWeeks($scope);
+			});				
+		});
+	}
 
 	var updateWeeks = function($scope)
 	{
@@ -141,36 +183,7 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 				$scope.weeks.push(week);
 			}
 		}
-
-/*
-		for(var i=0; i<18; i++)
-		{
-			var week = {
-				id: i,
-				index: 18-i,
-				days: []
-			}
-			for(var day_id=0; day_id<7; day_id++)
-			{
-				var day = {
-					id: day_id
-				}
-				week.days.push(day);
-			}
-			$scope.weeks.push(week);
-		}
-*/
 	}
-	/*	
-	if( $rootScope.selectedUserId )
-		$scope.user = User.get({uid: $rootScope.selectedUserId});
-
-	if( $rootScope.selectedCompetitionId )
-		$scope.competition = Competition.get({cid: $rootScope.selectedCompetitionId});
-
-	if( $rootScope.selectedPlanId )
-		$scope.plan = Plan.get({pid: $rootScope.selectedPlanId});
-	*/
 
 	$rootScope.$watch('selectedUserId', function(newId,oldId)
 	{
@@ -217,48 +230,4 @@ function WeekCalendarCtrl($scope, $rootScope, User,Competition,Plan,Utils)
 		}
 	});
 
-
-	/*
-	)	
-	{
-		id: 0,
-		index: 18,
-		days: [
-		{
-			id: 0,
-			plan: {
-				distance: 10
-			},
-			actual: {
-				distance: 10.12,
-				time: 57 * 60 + 12,
-				pace: 4 * 60 + 34,
-			}
-		},
-		{
-			id: 1
-		},
-		{
-			id: 2,
-			plan: {
-				distance: 10
-			},
-		},
-		{
-			id: 3,
-		},
-		{
-			id: 4,
-		},
-		{
-			id: 5,
-		},
-		{
-			id: 6,
-		},
-
-		]
-	}
-	];
-	*/
 }

@@ -319,6 +319,25 @@ exports.savePlannedRun = function(req,res,next)
 	})
 }
 
+exports.deletePlannedRun = function(req,res,next)
+{
+	var pid  = req.params.pid;
+	var prid = req.params.prid;
+
+	var doc = {};
+	doc['plannedRuns.' + prid] = {};
+	plans.update({_id: new mongodb.ObjectID(pid)}, {$unset:doc}, {}, function(err,count)
+	{
+		if(err)
+			return next(err);
+
+		var response = {
+			success: true,
+		};
+		res.json(response);		
+	})
+}
+
 // ///////////////////////////////////////////////////////////////////////
 //
 //                               user runs

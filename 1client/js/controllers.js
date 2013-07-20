@@ -75,6 +75,17 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		});
 	};
 
+	$scope.editPlannedRun = function(day)
+	{
+		day.newPlannedRun = new PlannedRun(
+		{ 
+			pid 	: $scope.plan._id,
+			prid 	: day.index,
+			distance: day.plan.distance, 
+			comments: day.plan.comments 
+		});
+	};
+
 	$scope.savePlannedRun = function(day)
 	{
 		console.log("saving ", day.newPlannedRun);
@@ -153,15 +164,11 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 					}
 					var plannedRun = $scope.plan.plannedRuns[dayIndex];
 					if( plannedRun )
-					{
-						day.plan = {};
-						day.plan.distance = plannedRun.distance;
-					}
+						day.plan = plannedRun;
 
 					if( $scope.today.getTime() == day.date.getTime() )
-					{
 						week.isCurrentWeek = day.isToday = true;
-					}
+
 					week.days.push(day);
 
 					date = Utils.datePlusDays(date,1);
@@ -170,9 +177,8 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 				week.days.forEach(function(day)
 				{
 					if( day.plan )
-					{
 						week.plan.distance += day.plan.distance;
-					}
+
 					if( day.actual )
 					{
 						week.actual.distance += day.actual.distance;

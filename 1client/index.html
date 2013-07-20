@@ -84,12 +84,15 @@
 				<td class="week-number">{{week.index}}</td>
 				<td class="day" ng-class="{today: day.isToday, 'weekend': day.isWeekend}" ng-repeat="day in week.days" id="d{{day.index}}">
 					<div class="date">{{day.index}} | {{day.date| formatDate}}</div>
-					<div ng-show="day.plan" class="plan">
-						<span class="distance">{{day.plan.distance | formatDistance }}</span>
-						<button ng-click="deletePlannedRun(day)">x</button>
-					</div>
-					<div ng-hide="day.plan" class="plan">
-						<button ng-hide="day.newPlannedRun" ng-click="addPlannedRun(day)">+</button>
+					<div class="plan">
+						<div ng-show="(day.plan && !day.newPlannedRun)" ng-dblclick="editPlannedRun(day)">
+							<span class="distance">{{day.plan.distance | formatDistance }}</span>
+							<span class="comments">{{day.plan.comments}}</span>
+							<button ng-click="deletePlannedRun(day)">x</button>
+						</div>
+						<div ng-hide="day.plan">
+							<button ng-hide="day.newPlannedRun" ng-click="addPlannedRun(day)">+</button>
+						</div>
 						<div ng-show="day.newPlannedRun">
 							<input ng-model="day.newPlannedRun.distance">
 							<input ng-model="day.newPlannedRun.comments">
@@ -101,7 +104,7 @@
 						<span class="time">{{day.actual.time | formatTime }}</span>
 						<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
 					</div>
-					<div ng-show="(day.plan && !day.actual)" class="empty"></div>
+					<!--<div ng-show="(day.plan && !day.actual)" class="empty"></div>-->
 				</td>
 				<td class="week-total">
 					<div class="actual">

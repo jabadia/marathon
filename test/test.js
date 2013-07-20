@@ -6,7 +6,8 @@ var mongodb = require('mongodb');
 var async   = require('async');
 
 
-var dburi    = "mongodb://jabadia:jabadia@dharma.mongohq.com:10011/training"
+//var dburi    = "mongodb://jabadia:jabadia@dharma.mongohq.com:10011/training"
+var dburi    = "mongodb://localhost:27017/training"
 
 var users;
 var competitions;

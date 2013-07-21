@@ -58,7 +58,7 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, Utils)
+function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, Utils, $timeout)
 {
 	console.log("WeekCalendarCtrl");
 
@@ -73,6 +73,11 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			distance: 0, 
 			comments: "" 
 		});
+		$timeout(function()
+		{
+			//$('d' + day.index).find('input')[0].focus();
+			console.log("setting focus");
+		},100);
 	};
 
 	$scope.editPlannedRun = function(day)
@@ -98,7 +103,12 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 				updateWeeks($scope);
 			});
 		});
-	}	
+	}
+
+	$scope.cancelPlannedRun = function(day)
+	{
+		delete day.newPlannedRun;
+	}
 
 	$scope.deletePlannedRun = function(day)
 	{

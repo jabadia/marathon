@@ -288,12 +288,12 @@ exports.addPlan = function(req,res,next)
 
 exports.savePlan = function(req,res,next)
 {
-
+	next(new Error('not implemented'));
 }
 
 exports.getPlannedRun = function(req,res,next)
 {
-
+	next(new Error('not implemented'));
 }
 
 exports.savePlannedRun = function(req,res,next)
@@ -346,21 +346,26 @@ exports.deletePlannedRun = function(req,res,next)
 
 exports.getAllUserRuns = function(req,res,next)
 {
-
+	next(new Error('not implemented'));
 }
 
 exports.addUserRun = function(req,res,next)
 {
-
+	next(new Error('not implemented'));
 }
 
 exports.getUserRun = function(req,res,next)
 {
-
+	next(new Error('not implemented'));
 }
 
 exports.saveUserRun = function(req,res,next)
 {
+	next(new Error('not implemented'));
+}
 
+exports.deleteUserRun = function(req,res,next)
+{
+	next(new Error('not implemented'));
 }
 

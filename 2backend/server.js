@@ -57,6 +57,7 @@ app.get(   '/user/:uid/run',       training.getAllUserRuns);
 app.post(  '/user/:uid/run',       training.addUserRun);
 app.get(   '/user/:uid/run/:rid',  training.getUserRun);
 app.put(   '/user/:uid/run/:rid',  training.saveUserRun);
+app.delete('/user/:uid/run/:rid',  training.deleteUserRun);
 
 
 app.use( training.errorHandler );

@@ -10,10 +10,11 @@ var dburi    = "mongodb://localhost:27017/training"
 var users;
 var competitions;
 var plans;
+var runs;
 
 mongodb.Db.connect(dburi, function(err,client)
 {
-	async.map(['users','competitions','plans'], 
+	async.map(['users','competitions','plans','runs'], 
 		function(collection_name, callback)
 		{
 			client.collection(collection_name,{},callback);
@@ -26,6 +27,7 @@ mongodb.Db.connect(dburi, function(err,client)
 			users        = results[0];
 			competitions = results[1];
 			plans        = results[2];
+			runs         = results[3];
 		}
 	);
 });
@@ -70,7 +72,7 @@ exports.getAllUsers = function(req,res,next)
 		if(err)
 			return next(err);
 		else
-			return res.json(users);
+			res.json(users);
 	});
 }
 
@@ -90,7 +92,7 @@ exports.getUser = function(req,res,next)
 			next(error);
 		}
 
-		return res.json(user);
+		res.json(user);
 	})
 }
 
@@ -160,7 +162,7 @@ exports.deleteUser = function(req,res,next)
 			next(error);
 		}
 
-		return res.json(removed);
+		res.json(removed);
 	})
 }
 
@@ -178,7 +180,7 @@ exports.getAllCompetitions = function(req,res,next)
 		if(err)
 			return next(err);
 
-		return res.json(competitions);
+		res.json(competitions);
 	});
 }
 
@@ -198,7 +200,7 @@ exports.getCompetition = function(req,res,next)
 			next(error);
 		}
 
-		return res.json(competition);
+		res.json(competition);
 	})
 }
 
@@ -236,9 +238,9 @@ exports.getAllPlans = function(req,res,next)
 	plans.find({},{_id:1,distance:1,name:1}).toArray(function(err,plans)
 	{
 		if(err)
-			return res.status(500).send('Error 500: ' + err);
+			return next(err);
 
-		return res.json(plans);
+		res.json(plans);
 	});
 }
 
@@ -258,7 +260,7 @@ exports.getPlan = function(req,res,next)
 			next(error);
 		}
 
-		return res.json(plan);
+		res.json(plan);
 	})
 }
 
@@ -346,12 +348,41 @@ exports.deletePlannedRun = function(req,res,next)
 
 exports.getAllUserRuns = function(req,res,next)
 {
-	next(new Error('not implemented'));
+	var uid  = req.params.uid;
+
+	runs.find({uid: uid}).toArray(function(err,runs)
+	{
+		if(err)
+			return next(err);
+
+		res.json(runs);
+	});
 }
 
 exports.addUserRun = function(req,res,next)
 {
-	next(new Error('not implemented'));
+	var uid  = req.params.uid;
+
+	var doc = {
+		uid:       uid,
+		date:      req.body.date             || "0000-00-00",
+		distance:  Number(req.body.distance) || 0,
+		time:      Number(req.body.time)     || 0 
+	};
+
+	runs.insert(doc, {}, function(err,records)
+	{
+		console.log(records);
+
+		if(err)
+			return next(err);
+
+		var response = {
+			success: true,
+			rid: records[0]._id
+		};
+		res.json(response);
+	})
 }
 
 exports.getUserRun = function(req,res,next)

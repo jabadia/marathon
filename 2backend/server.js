@@ -34,30 +34,30 @@ app.options('*', function(req,res,next) {
 
 //app.param('id', training.validateId);
 
-app.get(   '/', 			       training.root);
-app.get(   '/user',		           training.getAllUsers);
-app.get(   '/user/:uid',	       training.getUser);
-app.post(  '/user',			       training.addUser);
-app.put(   '/user/:uid',           training.modifyUser);
-app.delete('/user/:uid',	       training.deleteUser);
+app.get(   '/', 			        training.root);
+app.get(   '/users',		        training.getAllUsers);
+app.get(   '/users/:uid',	        training.getUser);
+app.post(  '/users',			    training.addUser);
+app.put(   '/users/:uid',           training.modifyUser);
+app.delete('/users/:uid',	        training.deleteUser);
+ 
+app.get(   '/competitions',         training.getAllCompetitions);
+app.get(   '/competitions/:cid',    training.getCompetition);
+app.post(  '/competitions',         training.addCompetition);
+ 
+app.get(   '/plans',                training.getAllPlans);
+app.get(   '/plans/:pid',		    training.getPlan);
+app.post(  '/plans',			    training.addPlan);
+app.put(   '/plans/:pid',		    training.savePlan);
+app.get(   '/plans/:pid/:prid',     training.getPlannedRun);
+app.put(   '/plans/:pid/:prid',     training.savePlannedRun);
+app.delete('/plans/:pid/:prid',     training.deletePlannedRun);
 
-app.get(   '/competition',         training.getAllCompetitions);
-app.get(   '/competition/:cid',    training.getCompetition);
-app.post(  '/competition',         training.addCompetition);
-
-app.get(   '/plan',                training.getAllPlans);
-app.get(   '/plan/:pid',		   training.getPlan);
-app.post(  '/plan',			       training.addPlan);
-app.put(   '/plan/:pid',		   training.savePlan);
-app.get(   '/plan/:pid/:prid',     training.getPlannedRun);
-app.put(   '/plan/:pid/:prid',     training.savePlannedRun);
-app.delete('/plan/:pid/:prid',     training.deletePlannedRun);
-
-app.get(   '/user/:uid/run',       training.getAllUserRuns);
-app.post(  '/user/:uid/run',       training.addUserRun);
-app.get(   '/user/:uid/run/:rid',  training.getUserRun);
-app.put(   '/user/:uid/run/:rid',  training.saveUserRun);
-app.delete('/user/:uid/run/:rid',  training.deleteUserRun);
+app.get(   '/users/:uid/runs',      training.getAllUserRuns);
+app.post(  '/users/:uid/runs',      training.addUserRun);
+app.get(   '/users/:uid/runs/:rid', training.getUserRun);
+app.put(   '/users/:uid/runs/:rid', training.saveUserRun);
+app.delete('/users/:uid/runs/:rid', training.deleteUserRun);
 
 
 app.use( training.errorHandler );

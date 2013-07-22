@@ -6,7 +6,7 @@ angular.module("userService", ['ngResource']).
 	factory("User", function($resource)
 	{
 		return $resource(
-			api_url + "/user/:uid",
+			api_url + "/users/:uid",
 			{ uid: "@_id" }
 		);
 	});
@@ -15,7 +15,7 @@ angular.module("competitionService", ['ngResource']).
 	factory("Competition", function($resource)
 	{
 		return $resource(
-			api_url + "/competition/:cid",
+			api_url + "/competitions/:cid",
 			{ cid: "@_id" }
 		);
 	});
@@ -24,7 +24,7 @@ angular.module("planService", ['ngResource']).
 	factory("Plan", function($resource)
 	{
 		return $resource(
-			api_url + "/plan/:pid",
+			api_url + "/plans/:pid",
 			{ pid: "@_id" }			
 		);
 	});
@@ -33,7 +33,7 @@ angular.module("plannedRunService", ['ngResource']).
 	factory("PlannedRun", function($resource)
 	{
 		return $resource(
-			api_url + "/plan/:pid/:prid",
+			api_url + "/plans/:pid/:prid",
 			{ pid: "@pid", prid: "@prid" },
 			{
 				'save': { method: 'PUT'}

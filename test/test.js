@@ -52,7 +52,7 @@ describe('Backend REST API Test', function()
 	//
 	// tests begin here
 	//
-	describe('GET /user', function() 
+	describe('GET /users', function() 
 	{
 		before(function(done)
 		{
@@ -61,7 +61,7 @@ describe('Backend REST API Test', function()
 				assert.equal(err,null, "failed to clear db: " + err);
 
 				request.post({
-					url: url + '/user', 
+					url: url + '/users', 
 					form: { 
 						name: 'Javier', 
 						birthdate: "1974-11-11",
@@ -80,8 +80,9 @@ describe('Backend REST API Test', function()
 
 		it("should return an array of users", function(done)
 		{
-			request.get({url: url + '/user'}, function(err,resp)
+			request.get({url: url + '/users'}, function(err,resp)
 			{				
+				assert.equal(resp.statusCode,200);
 				var data = JSON.parse(resp.body);
 				assert.equal(data.length,1, "should return an array with one element");
 				done();
@@ -89,7 +90,7 @@ describe('Backend REST API Test', function()
 		});
 	});
 
-	describe('PUT /user/:uid', function()
+	describe('PUT /users/:uid', function()
 	{
 		var uid;
 
@@ -100,13 +101,14 @@ describe('Backend REST API Test', function()
 				assert.equal(err,null, "failed to clear db: " + err);
 
 				request.post({
-					url: url + '/user', 
+					url: url + '/users', 
 					form: { 
 						name: 'Jvr', 
 						birthdate: "0000-00-00",
 					}
 				}, function(err,resp)
 				{				
+					assert.equal(resp.statusCode,200);
 					var data = JSON.parse(resp.body);
 					uid = data.uid;
 					done();
@@ -122,18 +124,20 @@ describe('Backend REST API Test', function()
 		it("should modify one particular user", function(done)
 		{
 			request.put({
-				url: url + '/user/' + uid,
+				url: url + '/users/' + uid,
 				form: { 
 					name: 'Javier', 
 					birthdate: "1974-11-11",
 				}
 			}, function(err,resp)
 			{				
+				assert.equal(resp.statusCode,200);
 				var data = JSON.parse(resp.body);
 				assert.ok(data.success,"should return success");
 
-				request.get({url: url + '/user/' + uid}, function(err,resp)
+				request.get({url: url + '/users/' + uid}, function(err,resp)
 				{				
+					assert.equal(resp.statusCode,200);
 					var data = JSON.parse(resp.body);
 					assert.equal(data._id,uid, "should keep same id");
 					assert.equal(data.name,'Javier', "should have changed name");
@@ -153,14 +157,14 @@ describe('Backend REST API Test', function()
 			};
 
 			request.put({
-				url: url + '/user/' + badid,
+				url: url + '/users/' + badid,
 				form: doc
 			}, function(err,resp)
 			{				
 				assert.equal(resp.statusCode,500, "should return error");
 
 				request.put({
-					url: url + '/user/' + nonexistent,
+					url: url + '/users/' + nonexistent,
 					form: doc	
 				}, function(err,resp)
 				{
@@ -172,7 +176,7 @@ describe('Backend REST API Test', function()
 
 	});
 
-	describe('GET /competition', function() 
+	describe('GET /competitions', function() 
 	{
 		before(function(done)
 		{
@@ -181,7 +185,7 @@ describe('Backend REST API Test', function()
 				assert.equal(err,null, "failed to clear db: " + err);
 
 				request.post({
-					url: url + '/competition', 
+					url: url + '/competitions', 
 					form: { 
 						name: 'NYC Marathon', 
 						date: "2013-11-03",
@@ -201,8 +205,9 @@ describe('Backend REST API Test', function()
 
 		it("should return an array of competitions", function(done)
 		{
-			request.get({url: url + '/competition'}, function(err,resp)
+			request.get({url: url + '/competitions'}, function(err,resp)
 			{				
+				assert.equal(resp.statusCode,200);
 				var data = JSON.parse(resp.body);
 				assert.equal(data.length,1, "should return an array with one element");
 				done();
@@ -210,8 +215,10 @@ describe('Backend REST API Test', function()
 		});
 	});
 
-	describe('GET /plan', function()
+	describe('GET /plans', function()
 	{
+		var pid = null;
+
 		before(function(done)
 		{
 			plans.remove({}, function(err,removed)
@@ -219,7 +226,7 @@ describe('Backend REST API Test', function()
 				assert.equal(err,null, "failed to clear db: " + err);
 
 				request.post({
-					url: url + '/plan', 
+					url: url + '/plans', 
 					form: { 
 						name: '18 week training for NYC Marathon', 
 						distance: 42.195,
@@ -227,9 +234,11 @@ describe('Backend REST API Test', function()
 					}
 				}, function(err,resp)
 				{		
+					assert.equal(resp.statusCode,200);
 					var data = JSON.parse(resp.body);
+					pid = data.pid;
 					request.put({
-						url: url + '/plan/' + data.pid + '/0',
+						url: url + '/plans/' + pid + '/0',
 						form: {
 							distance: 42.195,
 							comments: 'Competition Day!'
@@ -237,7 +246,7 @@ describe('Backend REST API Test', function()
 					}, function(err,resp)
 					{
 						request.put({
-							url: url + '/plan/' + data.pid + '/2',
+							url: url + '/plans/' + pid + '/2',
 							form: {
 								distance: 5.000,
 								comments: 'Slow run before grand day'
@@ -245,7 +254,7 @@ describe('Backend REST API Test', function()
 						}, function(err,resp)
 						{							
 							request.put({
-								url: url + '/plan/' + data.pid + '/5',
+								url: url + '/plans/' + pid + '/5',
 								form: {
 									distance: 7.000,
 									comments: 'Easy'
@@ -267,18 +276,33 @@ describe('Backend REST API Test', function()
 
 		it("should return an array of plans", function(done)
 		{
-			request.get({url: url + '/plan'}, function(err,resp)
+			request.get({url: url + '/plans'}, function(err,resp)
 			{				
+				assert.equal(resp.statusCode,200);
 				var data = JSON.parse(resp.body);
 				assert.equal(data.length,1, "should return an array with one element");
 				var plan = data[0];
 				assert.ok(plan.hasOwnProperty('name'),'plan should have a name');
 				assert.ok(plan.hasOwnProperty('distance'),'plan should have a distance');
-				assert.ok(plan.hasOwnProperty('weeks'),'plan should have a number of weeks');
-				assert.ok(plan.hasOwnProperty('plannedRuns'),'plan should have an array of planned runs');
-				assert.equal(Object.keys(plan.plannedRuns).length,3,'plan should have 3 planned runs');
+				assert.ok(!plan.hasOwnProperty('weeks'),'plan should not have a number of weeks');
+				assert.ok(!plan.hasOwnProperty('plannedRuns'),'plan should not have an array of planned runs');
 				done();
 			});
+		});
+
+		it("should return full details of one plan", function(done)
+		{
+			request.get({url: url + '/plans/' + pid}, function(err,resp)
+			{
+				assert.equal(resp.statusCode,200);
+				var plan = JSON.parse(resp.body);
+				assert.ok(plan.hasOwnProperty('name'),'plan should have a name');
+				assert.ok(plan.hasOwnProperty('distance'),'plan should have a distance');
+				assert.ok(plan.hasOwnProperty('weeks'),'plan should have a number of weeks');
+				assert.ok(plan.hasOwnProperty('plannedRuns'),'plan shouldhave an array of planned runs');
+				assert.equal(Object.keys(plan.plannedRuns).length,3,'plan should have 3 planned runs');
+				done();				
+			})
 		});
 
 	})

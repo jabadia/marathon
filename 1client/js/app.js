@@ -1,6 +1,9 @@
 "use strict";
 
-var app = angular.module('training',['trainingFilters','userService','competitionService', 'planService','plannedRunService','ngCookies', 'utilityService']);
+var app = angular.module('training',[
+	'trainingFilters',
+	'userService','competitionService', 'planService','plannedRunService','runService',
+	'ngCookies', 'utilityService']);
 
 app.run(function($rootScope, $cookies, User, Competition, Plan)
 {	

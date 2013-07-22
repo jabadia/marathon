@@ -41,6 +41,18 @@ angular.module("plannedRunService", ['ngResource']).
 		);
 	});
 
+angular.module("runService", ['ngResource']).
+	factory("Run", function($resource)
+	{
+		return $resource(
+			api_url + "/users/:uid/runs/:rid",
+			{ uid: "@uid", rid: "@rid" },
+			{
+				'save': { method: 'PUT'}
+			}
+		);
+	});
+
 angular.module("utilityService",[]).
 	factory('Utils', function()
 	{

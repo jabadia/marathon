@@ -54,7 +54,10 @@ exports.errorHandler = function(err,req,res,next)
 	}
 	else
 	{
-		var error = { error: 'Internal Server Error'}
+		var error = (process.env.NODE_ENV == 'pro')? 
+			{ error: 'Internal Server Error' }
+		:
+			{ error: 'Internal Server Error - ' + err.message }
 		res.status(500).json(error);
 	}
 }

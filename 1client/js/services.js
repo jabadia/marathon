@@ -41,8 +41,8 @@ angular.module("plannedRunService", ['ngResource']).
 		);
 	});
 
-angular.module("runService", ['ngResource']).
-	factory("Run", function($resource)
+angular.module("actualRunService", ['ngResource']).
+	factory("ActualRun", function($resource)
 	{
 		return $resource(
 			api_url + "/users/:uid/runs/:rid",
@@ -66,6 +66,17 @@ angular.module("utilityService",[]).
 			{
 				var components = s.split('-');
 				return new Date(Date.UTC( Number(components[0]), Number(components[1])-1, Number(components[2]) ));
+			},
+			stringFromDate: function(d)
+			{
+				var year = d.getUTCFullYear();
+				var month = d.getUTCMonth() + 1;
+				var day = d.getUTCDate();
+
+				if( month < 10) month = "0" + month;
+				if( day < 10) day = "0" + day;
+
+				return [year,month,day].join('-');
 			},
 			mondayFromDate: function(dt)
 			{
@@ -96,3 +107,4 @@ angular.module("utilityService",[]).
 			}
 		}
 	});
+

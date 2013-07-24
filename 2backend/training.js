@@ -353,7 +353,7 @@ exports.getAllUserRuns = function(req,res,next)
 {
 	var uid  = req.params.uid;
 
-	runs.find({uid: uid}).toArray(function(err,runs)
+	runs.find({uid: uid},{},{sort: "date"}).toArray(function(err,runs)
 	{
 		if(err)
 			return next(err);
@@ -364,16 +364,47 @@ exports.getAllUserRuns = function(req,res,next)
 
 exports.addUserRun = function(req,res,next)
 {
-	var uid  = req.params.uid;
+	next(new Error('not implemented'));
+}
 
+exports.getUserRun = function(req,res,next)
+{
+	var uid  = req.params.uid;
+	var rid  = req.params.rid;
+
+	runs.findOne({uid: uid, date:rid}, function(err,run)
+	{
+		if(err)
+			return next(err);
+
+		if(!run)
+		{
+			var error = new Error('run not found');
+			error.notFound = uid + '/runs/' + rid;
+			next(error);
+		}
+
+		res.json(run);
+	})
+}
+
+exports.saveUserRun = function(req,res,next)
+{
+	var uid  = req.params.uid;
+	var rid  = req.params.rid;
+
+	var key = {
+		uid:       uid,
+		date:      rid                       || "0000-00-00",
+	};
 	var doc = {
 		uid:       uid,
-		date:      req.body.date             || "0000-00-00",
+		date:      rid                       || "0000-00-00",
 		distance:  Number(req.body.distance) || 0,
 		time:      Number(req.body.time)     || 0 
 	};
 
-	runs.insert(doc, {}, function(err,records)
+	runs.update(key, doc, {upsert:true}, function(err,records)
 	{
 		console.log(records);
 
@@ -382,24 +413,30 @@ exports.addUserRun = function(req,res,next)
 
 		var response = {
 			success: true,
-			rid: records[0]._id
+			link: '/users/' + uid + '/runs/' + rid
 		};
 		res.json(response);
 	})
 }
 
-exports.getUserRun = function(req,res,next)
-{
-	next(new Error('not implemented'));
-}
-
-exports.saveUserRun = function(req,res,next)
-{
-	next(new Error('not implemented'));
-}
-
 exports.deleteUserRun = function(req,res,next)
 {
-	next(new Error('not implemented'));
+	var uid  = req.params.uid;
+	var rid  = req.params.rid;
+
+	runs.remove({uid: uid, date:rid}, function(err,removed)
+	{
+		if(err)
+			return next(err);
+
+		if(!removed)
+		{
+			var error = new Error('run not found');
+			error.notFound = uid + '/runs/' + rid;
+			next(error);
+		}
+
+		res.json(removed);
+	})
 }
 

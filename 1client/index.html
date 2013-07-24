@@ -100,10 +100,22 @@
 							<button ng-click="cancelPlannedRun(day)">cancel</button>
 						</div>
 					</div>
-					<div ng-show="day.actual" class="actual">
-						<span class="distance">{{day.actual.distance | formatDistance }}</span><br />
-						<span class="time">{{day.actual.time | formatTime }}</span>
-						<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
+					<div class="actual">
+						<div ng-show="(day.actual && !day.newActualRun)" ng-dblclick="editActualRun(day)">
+							<span class="distance">{{day.actual.distance | formatDistance }}</span><br />
+							<span class="time">{{day.actual.time | formatTime }}</span>
+							<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
+							<button ng-click="deleteActualRun(day)">x</button>
+						</div>
+						<div ng-hide="day.actual">
+							<button ng-hide="day.newActualRun" ng-click="addActualRun(day)">+</button>
+						</div>
+						<div ng-show="day.newActualRun">
+							<input ng-model="day.newActualRun.distance">
+							<input ng-model="day.newActualRun.time">
+							<button ng-click="saveActualRun(day)">save</button>
+							<button ng-click="cancelActualRun(day)">cancel</button>
+						</div>
 					</div>
 					<!--<div ng-show="(day.plan && !day.actual)" class="empty"></div>-->
 				</td>

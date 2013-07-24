@@ -58,11 +58,13 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, Utils, $timeout)
+function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, ActualRun, Utils, $timeout)
 {
 	console.log("WeekCalendarCtrl");
 
 	$scope.weeks = [];
+
+	/* -- planned runs --*/
 
 	$scope.addPlannedRun = function(day)
 	{
@@ -127,6 +129,74 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		});
 	}
 
+	/* -- actual runs --*/
+
+	$scope.addActualRun = function(day)
+	{
+		day.newActualRun = new ActualRun(
+		{ 
+			uid 	: $scope.user._id,
+			rid 	: Utils.stringFromDate(day.date),
+			distance: 0, 
+			time    : 0
+		});
+		$timeout(function()
+		{
+			//$('d' + day.index).find('input')[0].focus();
+			console.log("setting focus");
+		},100);
+	};
+
+	$scope.editActualRun = function(day)
+	{
+		day.newActualRun = new ActualRun(
+		{ 
+			uid 	: $scope.user._id,
+			rid 	: Utils.stringFromDate(day.date),
+			distance: day.actual.distance, 
+			time    : day.actual.time
+		});
+	};
+
+	$scope.saveActualRun = function(day)
+	{
+		console.log("saving ", day.newActualRun);
+		day.newActualRun.$save(function(){
+			console.log("saved!!");
+			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newActualRun
+			delete day.newActualRun;
+			$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+			{
+			 	updateWeeks($scope);
+			});
+		});
+	}
+
+	$scope.cancelActualRun = function(day)
+	{
+		delete day.newActualRun;
+	}
+
+	$scope.deleteActualRun = function(day)
+	{
+		var actualRun = new ActualRun(
+		{
+			uid 	: $scope.user._id,
+			rid 	: Utils.stringFromDate(day.date),
+		});
+		actualRun.$delete(function()
+		{
+			console.log("deleted!!");
+			$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+			{
+			 	updateWeeks($scope);
+			});				
+		});
+	}
+
+
+	/* -- populate calendar view -- */
+
 	var updateWeeks = function($scope)
 	{
 		$scope.weeks = [];
@@ -137,6 +207,11 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			!($scope.user && $scope.user._id))
 			return;
 
+		// create weeks and days
+		// if we have a plan && competition, then extend the calendar up to competition date
+		// else, extend the calendar for two weeks from now
+
+		// put planned runs into days
 		if( $scope.competition && $scope.competition._id && $scope.plan && $scope.plan._id )
 		{
 			var competitionDate = Utils.dateFromString( $scope.competition.date );
@@ -199,6 +274,30 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 				$scope.weeks.push(week);
 			}
 		}
+
+		// put actual runs into days
+		if( $scope.user && $scope.user._id )
+		{
+			$scope.weeks.forEach(function(week)
+			{
+				week.days.forEach(function(day)
+				{
+					var date = Utils.stringFromDate(day.date);
+					var userRuns = $scope.runs;
+					while( userRuns.length && userRuns[0].date < date )
+						userRuns.shift();
+
+					if( userRuns.length && userRuns[0].date == date )
+					{
+						day.actual = {
+							distance : userRuns[0].distance,
+							time     : userRuns[0].time,
+							pace     : userRuns[0].distance? userRuns[0].time / userRuns[0].distance : 0
+						}
+					}
+				});
+			});
+		}
 	}
 
 	$rootScope.$watch('selectedUserId', function(newId,oldId)
@@ -207,7 +306,10 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		if( $rootScope.selectedUserId )
 			$scope.user = User.get({uid: $rootScope.selectedUserId}, function()
 			{
-				updateWeeks($scope);
+				$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+				{
+					updateWeeks($scope);
+				})
 			});
 		else
 		{			

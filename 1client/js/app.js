@@ -2,7 +2,7 @@
 
 var app = angular.module('training',[
 	'trainingFilters',
-	'userService','competitionService', 'planService','plannedRunService','runService',
+	'userService','competitionService', 'planService','plannedRunService','actualRunService',
 	'ngCookies', 'utilityService']);
 
 app.run(function($rootScope, $cookies, User, Competition, Plan)

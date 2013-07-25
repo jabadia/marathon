@@ -238,7 +238,7 @@ exports.addCompetition = function(req,res,next)
 
 exports.getAllPlans = function(req,res,next)
 {
-	plans.find({},{_id:1,distance:1,name:1}).toArray(function(err,plans)
+	plans.find({},{_id:1,distance:1,name:1,weeks:1}).toArray(function(err,plans)
 	{
 		if(err)
 			return next(err);

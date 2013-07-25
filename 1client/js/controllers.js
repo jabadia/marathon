@@ -280,18 +280,6 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 					date = Utils.datePlusDays(date,1);
 					dayIndex -= 1;
 				}
-				week.days.forEach(function(day)
-				{
-					if( day.plan )
-						week.plan.distance += day.plan.distance;
-
-					if( day.actual )
-					{
-						week.actual.distance += day.actual.distance;
-						week.actual.time += day.actual.time;
-						week.actual.pace = week.actual.time / week.actual.distance;
-					}
-				});
 				$scope.weeks.push(week);
 			}
 		}
@@ -319,6 +307,23 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 				});
 			});
 		}
+
+		// calculate weekly totals
+		$scope.weeks.forEach(function(week)
+		{
+			week.days.forEach(function(day)
+			{
+				if( day.plan )
+					week.plan.distance += day.plan.distance;
+
+				if( day.actual )
+				{
+					week.actual.distance += day.actual.distance;
+					week.actual.time += day.actual.time;
+					week.actual.pace = week.actual.time / week.actual.distance;
+				}
+			});
+		});
 	}
 
 	$rootScope.$watch('selectedUserId', function(newId,oldId)

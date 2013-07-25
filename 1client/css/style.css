@@ -11,7 +11,7 @@ table.calendar
 
 .week
 {
-	height: 110px;
+	height: 250px;
 
 	margin: 0;
 	padding: 0;
@@ -70,19 +70,24 @@ table.calendar
 .plan
 {
 	top: 23px;
-	height: 30px;
+	height: 60px;
 }
 
 .actual, .empty
 {
 	bottom: 0px;
-	height: 55px;
+	height: 100px;
 }
 
 .actual
 {
 	background: #dfd;
 	color: #080;
+}
+
+.actual span, .plan span
+{
+	cursor: pointer;
 }
 
 .empty
@@ -130,4 +135,9 @@ td.today
 .weekend
 {
 	background: #fcc;
+}
+
+.week input
+{
+	width: 90px;
 }

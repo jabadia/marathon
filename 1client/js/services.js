@@ -107,6 +107,9 @@ angular.module("utilityService",[]).
 			},
 			parseDistance: function(str)
 			{
+				str = String(str);
+				str = str.replace(',','.');
+				str = str.replace('km','.').replace('m','').replace(' ','');
 				var distance = parseFloat(str);
 				console.log("parsing " + str + " into " + distance)
 				if( isNaN(distance) )
@@ -123,12 +126,12 @@ angular.module("utilityService",[]).
 				str = str.replace("'",":");
 				str = str.replace('"','');
 
-				if( str.indexOf(':'))
+				if( str.indexOf(':') != -1)
 				{
 					components = str.split(':');
 					if( components.length == 3 )
 					{
-						hours = parseInt(components[0]) * 3600;
+						hours = parseInt(components[0]);
 						components.shift();
 					}
 					if( components.length == 2 )

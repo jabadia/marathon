@@ -6,7 +6,7 @@ angular.module("trainingFilters",[]).
 		return function(input, units)
 		{
 			units = units || "km";
-			return $filter('number')(input,3) + " " + units;
+			return $filter('number')(input,1) + " " + units;
 		}
 	}).
 	filter('formatTime',function()

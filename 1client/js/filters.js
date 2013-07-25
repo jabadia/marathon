@@ -13,10 +13,18 @@ angular.module("trainingFilters",[]).
 	{
 		return function(input)
 		{
+			var time = "";
 			var min = Math.floor(input/60);
-			var sec = input - (min * 60)
+			var sec = Math.floor(input - (min * 60));
+			var hour = Math.floor(min/60);
 			if(sec < 10) sec = "0" + sec;
-			return min + "'" + sec + '"';
+			if(hour)
+			{
+				min = min - hour * 60;
+				time += hour + "h";
+			}
+			time += min + "'" + sec + '"';
+			return time;
 		}
 	}).
 	filter('formatDate',function()

@@ -58,7 +58,7 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 	}
 }
 
-function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, ActualRun, Utils, $timeout)
+function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRun, ActualRun, Utils, $timeout, $filter)
 {
 	console.log("WeekCalendarCtrl");
 
@@ -95,6 +95,15 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 
 	$scope.savePlannedRun = function(day)
 	{
+		try
+		{
+			day.newPlannedRun.distance = Utils.parseDistance(day.newPlannedRun.distance);
+		}
+		catch(e)
+		{
+			return;
+		}
+
 		console.log("saving ", day.newPlannedRun);
 		day.newPlannedRun.$save(function(){
 			console.log("saved!!");
@@ -138,7 +147,8 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			uid 	: $scope.user._id,
 			rid 	: Utils.stringFromDate(day.date),
 			distance: 0, 
-			time    : 0
+			time    : 0,
+			timeStr : $filter('formatTime')(0)
 		});
 		$timeout(function()
 		{
@@ -154,12 +164,23 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			uid 	: $scope.user._id,
 			rid 	: Utils.stringFromDate(day.date),
 			distance: day.actual.distance, 
-			time    : day.actual.time
+			time    : day.actual.time,
+			timeStr : $filter('formatTime')(day.actual.time)
 		});
 	};
 
 	$scope.saveActualRun = function(day)
 	{
+		try
+		{
+			day.newActualRun.distance = Utils.parseDistance(day.newActualRun.distance);
+			day.newActualRun.time     = Utils.parseTime(day.newActualRun.timeStr);
+		}
+		catch(e)
+		{
+			return;
+		}
+
 		console.log("saving ", day.newActualRun);
 		day.newActualRun.$save(function(){
 			console.log("saved!!");

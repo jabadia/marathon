@@ -107,12 +107,12 @@
 							<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
 							<button ng-click="deleteActualRun(day)">x</button>
 						</div>
-						<div ng-hide="day.actual">
+						<div ng-hide="day.actual" ng-show="day.isToday">
 							<button ng-hide="day.newActualRun" ng-click="addActualRun(day)">+</button>
 						</div>
 						<div ng-show="day.newActualRun">
 							<input ng-model="day.newActualRun.distance">
-							<input ng-model="day.newActualRun.time">
+							<input ng-model="day.newActualRun.timeStr">
 							<button ng-click="saveActualRun(day)">save</button>
 							<button ng-click="cancelActualRun(day)">cancel</button>
 						</div>

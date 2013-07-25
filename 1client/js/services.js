@@ -104,6 +104,59 @@ angular.module("utilityService",[]).
 			{
 				var ms = dt1.getTime()-dt0.getTime();
 				return this.millisecondsToDays(ms);
+			},
+			parseDistance: function(str)
+			{
+				var distance = parseFloat(str);
+				console.log("parsing " + str + " into " + distance)
+				if( isNaN(distance) )
+					throw new Error('bad value');
+				return distance;
+			},
+			parseTime: function(str)
+			{
+				var time = 0;
+				var hours=0,mins=0,secs=0;
+				var components;
+
+				str = str.replace('h',':');
+				str = str.replace("'",":");
+				str = str.replace('"','');
+
+				if( str.indexOf(':'))
+				{
+					components = str.split(':');
+					if( components.length == 3 )
+					{
+						hours = parseInt(components[0]) * 3600;
+						components.shift();
+					}
+					if( components.length == 2 )
+					{
+						mins = parseInt(components[0]);
+						secs = parseInt(components[1]); 
+						if( isNaN(mins) || isNaN(secs) )
+							throw new Error('bad value');
+
+						if( hours == 0 && mins < 5) // se asume que 1:15 es 1h y 15min, en lugar de 1min y 15sec
+						{
+							hours = mins;
+							mins = secs;
+							secs = 0;
+						}
+					}
+				}
+				else
+				{
+					hours = 0;
+					mins = parseInt(str);
+					secs = 0;
+					if( isNaN(mins) )
+						throw new Error('bad value');
+				}
+				time = hours * 3600 + mins * 60 + secs;
+				console.log('parsing ' + str + ' into ' + time );
+				return time;
 			}
 		}
 	});

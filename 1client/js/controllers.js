@@ -48,7 +48,7 @@ function UserListCtrl($scope, $rootScope, $cookies, User)
 		delete $scope.editingUser;
 	}
 
-	$scope.delete = function(user)
+	$scope.delete = function()
 	{
 		if( $scope.selectedUser )
 		{
@@ -71,9 +71,65 @@ function CompetitionListCtrl($scope, $rootScope, $cookies, Competition)
 {
 	$scope.competitions = Competition.query();
 
+	$scope.addCompetition = function()
+	{
+		console.log("add!");
+		$scope.editingCompetition = new Competition();
+	}
+
+	$scope.editCompetition = function()
+	{
+		if( $scope.selectedCompetition )
+		{
+			console.log("edit!");
+			$scope.editingCompetition = angular.copy($scope.selectedCompetition);
+		}
+	}
+
+	$scope.save = function()
+	{
+		console.log("saving! ", $scope.editingCompetition);
+		if($scope.editingCompetition._id )
+		{
+			$scope.select($scope.editingCompetition);
+			$scope.editingCompetition.$save(function()
+			{
+				delete $scope.editingCompetition;
+				$scope.competitions = Competition.query();
+			});
+		}
+		else
+		{
+			Competition.add({}, $scope.editingCompetition, function(result)
+			{
+				$scope.editingCompetition._id = result.cid;
+				$scope.select($scope.editingCompetition);
+				delete $scope.editingCompetition;
+				$scope.competitions = Competition.query();
+			});
+		}
+	}
+
+	$scope.cancel = function()
+	{
+		delete $scope.editingCompetition;
+	}
+
+	$scope.delete = function()
+	{
+		if( $scope.selectedCompetition )
+		{
+			$scope.selectedCompetition.$delete(function()
+			{
+				$scope.select(null);			
+				$scope.competitions = Competition.query();
+			})
+		}
+	}
+
 	$scope.select = function(competition)
 	{
-		$rootScope.selectedCompetition = competition;
+		$rootScope.selectedCompetition = angular.copy(competition);
 		$cookies.selectedCompetitionId = competition? competition._id : "";
 	}
 }

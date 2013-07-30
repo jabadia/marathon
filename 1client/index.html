@@ -82,43 +82,17 @@
 					<div ng-hide="editingUser">
 						<a class="action" ng-click="editUser()">editar</a>
 						| <a class="action" ng-click="addUser()">nuevo</a>
-						| <a class="action" ng-click="delete(selectedUser)">borrar</a>
+						| <a class="action" ng-click="delete()">borrar</a>
 					</div>
 				</div>
 
-				<!--
-				<ul class="users unstyled" ng-controller="UserListCtrl">
-					<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}" ng-click='select(user)'>
-						<span ng-hide="editUser">
-							{{user.name}}, {{user.birthdate}}
-							<button ng-click='editUser = !editUser'>edit</button>
-						</span>
-						<span ng-show="editUser">
-							<input type="text" ng-model="user.name">
-							<input type="date" ng-model="user.birthdate">
-							<button ng-click='editUser = !editUser'>save</button>
-						</span>
-						<button ng-click='delete(user)'>x</button>
-					</li>
-					<li class="user" ng-click='select(null)'>none</li>
-					<li ng-hide="addMode" class="addButton">
-						<button ng-click="toggleAddMode()">+</button>
-					</li>
-					<li ng-show="addMode" class="newUser">
-						<input type="text" ng-model="newUser.name" />
-						<input type="date" ng-model="newUser.birthdate" />
-						<button ng-click='save()'>Save</button>
-						<button ng-click='toggleAddMode()'>Cancel</button>
-					</li>
-				</ul>
-				-->
 			</div>
 
-			<div class="span4">
+			<div class="span4" ng-controller="CompetitionListCtrl">
 				<h4>Competición</h4>
-				<div class="btn-group" ng-controller="CompetitionListCtrl">
+				<div class="btn-group">
 					<button type="button" class="btn btn-primary dropdown-toggle">
-					{{selectedCompetition.name||"Ninguna"}} {{selectedCompetition.date}} <span class="caret"></span>
+					{{selectedCompetition.name||"Ninguna"}} <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
 						<li ng-repeat="competition in competitions">
@@ -128,6 +102,41 @@
 						<li><a ng-click="select(null)">Ninguna</a></li>
 					</ul>
 				</div>
+
+				<br>
+
+				<div class="well well-small">
+					<dl ng-hide="editingCompetition">
+						<dt>Competición:</dt>
+						<dd>{{selectedCompetition.name}}</dd>
+						<dt>Fecha:</dt>
+						<dd>{{selectedCompetition.date}}</dd>
+						<dt>Distancia:</dt>
+						<dd>{{selectedCompetition.distance | formatDistance }}</dd>
+					</dl>
+					<form ng-show="editingCompetition">
+						<div class="form-group">
+							<label for="competition-name">Competición:</label>
+							<input id="competition-name" focus-me="editingCompetition" type="text" ng-model="editingCompetition.name">
+						</div>
+						<div class="form-group">
+							<label for="competition-date">Fecha:</label>
+							<input id="competition-date" type="date" ng-model="editingCompetition.date">
+						</div>
+						<div class="form-group">
+							<label for="competition-distance">Distancia:</label>
+							<input id="competition-distance" type="text" ng-model="editingCompetition.distance">
+						</div>
+						<button class="btn btn-small" ng-click="save()">Guardar</button>
+						<button class="btn btn-small" ng-click="cancel()">Cancelar</button>
+					</form>
+					<div ng-hide="editingCompetition">
+						<a class="action" ng-click="editCompetition()">editar</a>
+						| <a class="action" ng-click="addCompetition()">nuevo</a>
+						| <a class="action" ng-click="delete()">borrar</a>
+					</div>
+				</div>
+
 			</div>
 
 			<div class="span4">

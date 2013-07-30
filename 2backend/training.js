@@ -230,6 +230,56 @@ exports.addCompetition = function(req,res,next)
 	})
 }
 
+exports.saveCompetition = function(req,res,next)
+{
+	var cid = req.params.cid;
+
+	var doc = {
+		name:      req.body.name             || "name undefined",
+		date:      req.body.date             || "0000-00-00",
+		distance:  Number(req.body.distance) || 0 
+	};
+
+	competitions.update({_id: new mongodb.ObjectID(cid)}, doc, { upsert: false }, function(err,records)
+	{
+		if(err)
+			return next(err);
+
+		if( records == 0)
+		{
+			var error = new Error('competition not found');
+			error.notFound = cid;
+			next(error);
+		}
+
+		var response = {
+			success: true,
+		}
+		res.json(response);		
+	})
+}
+
+exports.deleteCompetition = function(req,res,next)
+{
+	var cid = req.params.cid;
+
+	competitions.remove({_id: new mongodb.ObjectID(cid)}, function(err,removed)
+	{
+		if(err)
+			return next(err);
+
+		if(!removed)
+		{
+			var error = new Error('competition not found');
+			error.notFound = cid;
+			next(error);
+		}
+
+		res.json(removed);
+	})
+}
+
+
 // ///////////////////////////////////////////////////////////////////////
 //
 //                                  plans

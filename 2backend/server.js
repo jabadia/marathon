@@ -43,7 +43,9 @@ app.delete('/users/:uid',	        training.deleteUser);
  
 app.get(   '/competitions',         training.getAllCompetitions);
 app.get(   '/competitions/:cid',    training.getCompetition);
+app.put(   '/competitions/:cid',	training.saveCompetition);
 app.post(  '/competitions',         training.addCompetition);
+app.delete('/competitions/:cid',    training.deleteCompetition);
  
 app.get(   '/plans',                training.getAllPlans);
 app.get(   '/plans/:pid',		    training.getPlan);

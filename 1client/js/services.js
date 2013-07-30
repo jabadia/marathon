@@ -20,7 +20,11 @@ angular.module("competitionService", ['ngResource']).
 	{
 		return $resource(
 			api_url + "/competitions/:cid",
-			{ cid: "@_id" }
+			{ cid: "@_id" },
+			{
+				'save': { method: 'PUT'},
+				'add':  { method: 'POST'} 
+			}
 		);
 	});
 

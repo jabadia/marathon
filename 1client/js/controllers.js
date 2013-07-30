@@ -4,35 +4,66 @@ function UserListCtrl($scope, $rootScope, $cookies, User)
 {
 	$scope.users = User.query();
 
-	$scope.toggleAddMode = function()
+	$scope.addUser = function()
 	{
-		$scope.addMode = !$scope.addMode;
-		if( $scope.addMode )
-			$scope.newUser = new User();
+		console.log("add!");
+		$scope.editingUser = new User();
+	}
+
+	$scope.editUser = function()
+	{
+		if( $scope.selectedUser )
+		{
+			console.log("edit!");
+			$scope.editingUser = angular.copy($scope.selectedUser);
+		}
 	}
 
 	$scope.save = function()
 	{
-		console.log("saving! ", $scope.newUser);
-		$scope.toggleAddMode();
-		$scope.newUser.$save(function()
+		console.log("saving! ", $scope.editingUser);
+		if($scope.editingUser._id )
 		{
-			$scope.users = User.query();
-		});
+			$scope.select($scope.editingUser);
+			$scope.editingUser.$save(function()
+			{
+				delete $scope.editingUser;
+				$scope.users = User.query();
+			});
+		}
+		else
+		{
+			User.add({}, $scope.editingUser, function(result)
+			{
+				$scope.editingUser._id = result.uid;
+				$scope.select($scope.editingUser);
+				delete $scope.editingUser;
+				$scope.users = User.query();
+			});
+		}
+	}
+
+	$scope.cancel = function()
+	{
+		delete $scope.editingUser;
 	}
 
 	$scope.delete = function(user)
 	{
-		user.$delete(function()
+		if( $scope.selectedUser )
 		{
-			$scope.users = User.query();
-		});
+			$scope.selectedUser.$delete(function()
+			{
+				$scope.select(null);			
+				$scope.users = User.query();
+			})
+		}
 	}
 
 	$scope.select = function(user)
 	{
-		$rootScope.selectedUserId = user._id;
-		$cookies.selectedUserId = user._id;
+		$rootScope.selectedUser = angular.copy(user);
+		$cookies.selectedUserId = user? user._id : "";
 	}
 }
 
@@ -144,7 +175,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		day.newActualRun = new ActualRun(
 		{ 
-			uid 	: $scope.user._id,
+			uid 	: $scope.selectedUser._id,
 			rid 	: Utils.stringFromDate(day.date),
 			distance: 0, 
 			time    : 0,
@@ -161,7 +192,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		day.newActualRun = new ActualRun(
 		{ 
-			uid 	: $scope.user._id,
+			uid 	: $scope.selectedUser._id,
 			rid 	: Utils.stringFromDate(day.date),
 			distance: day.actual.distance, 
 			time    : day.actual.time,
@@ -186,7 +217,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			console.log("saved!!");
 			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newActualRun
 			delete day.newActualRun;
-			$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+			$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
 			{
 			 	updateWeeks($scope);
 			});
@@ -202,13 +233,13 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		var actualRun = new ActualRun(
 		{
-			uid 	: $scope.user._id,
+			uid 	: $scope.selectedUser._id,
 			rid 	: Utils.stringFromDate(day.date),
 		});
 		actualRun.$delete(function()
 		{
 			console.log("deleted!!");
-			$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+			$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
 			{
 			 	updateWeeks($scope);
 			});				
@@ -225,7 +256,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 
 		if( !($scope.selectedCompetition && $scope.selectedCompetition._id) && 
 			!($scope.selectedPlan && $scope.selectedPlan._id) && 
-			!($scope.user && $scope.user._id))
+			!($scope.selectedUser && $scope.selectedUser._id))
 			return;
 
 		// create weeks and days
@@ -285,7 +316,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		}
 
 		// put actual runs into days
-		if( $scope.user && $scope.user._id )
+		if( $scope.selectedUser && $scope.selectedUser._id )
 		{
 			$scope.weeks.forEach(function(week)
 			{
@@ -326,22 +357,24 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		});
 	}
 
-	$rootScope.$watch('selectedUserId', function(newId,oldId)
+	$rootScope.$watch('selectedUser', function(newUser,oldUser)
 	{
-		console.log("changed from",oldId,"to",newId);
-		if( $rootScope.selectedUserId )
-			$scope.user = User.get({uid: $rootScope.selectedUserId}, function()
-			{
-				$scope.runs = ActualRun.query({ uid: $scope.user._id }, function()
+		var oldUserId = oldUser? oldUser._id : "-";
+		var newUserId = newUser? newUser._id : "-";
+		console.log("user changed from",oldUserId,"to",newUserId);
+		if( oldUserId != newUserId )
+			if( newUser && newUser._id )
+				$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
 				{
 					updateWeeks($scope);
-				})
-			});
+				});
+			else
+			{
+				delete $scope.runs;
+				updateWeeks($scope);
+			}
 		else
-		{			
-			$scope.user = null;			
 			updateWeeks($scope);
-		}
 	});
 
 	$scope.$watch('selectedCompetition', function(newCompetition,oldCompetition)

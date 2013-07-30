@@ -7,7 +7,11 @@ angular.module("userService", ['ngResource']).
 	{
 		return $resource(
 			api_url + "/users/:uid",
-			{ uid: "@_id" }
+			{ uid: "@_id" },
+			{
+				'save': { method: 'PUT'},
+				'add':  { method: 'POST'} 
+			}
 		);
 	});
 

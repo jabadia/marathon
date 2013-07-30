@@ -182,3 +182,14 @@ td.today
 {
 	cursor: pointer;
 }
+
+
+[contenteditable]
+{
+	cursor: pointer;
+}
+
+.action
+{
+	cursor: pointer;
+}

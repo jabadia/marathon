@@ -7,7 +7,7 @@ var app = angular.module('training',[
 
 app.run(function($rootScope, $cookies, User, Competition, Plan)
 {	
-	$rootScope.selectedUserId = null;
+	$rootScope.selectedUser = null;
 	$rootScope.selectedCompetition = null;
 	$rootScope.selectedPlan = null;
 
@@ -15,7 +15,7 @@ app.run(function($rootScope, $cookies, User, Competition, Plan)
 	if( $cookies.selectedUserId )
 		User.get({ uid:  $cookies.selectedUserId }, function(user)
 		{
-			$rootScope.selectedUserId = user._id;
+			$rootScope.selectedUser = user;
 		});
 
 	if( $cookies.selectedCompetitionId )

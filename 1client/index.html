@@ -3,8 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Entrenamiento</title>
-	<link rel="stylesheet" href="lib/bootstrap/assets/bootstrap.css">
-	<!-- <link rel="stylesheet" href="css/bootstrap.css"> -->
+	<!-- <link rel="stylesheet" href="lib/bootstrap/assets/bootstrap.css"> -->
+	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="css/style.css">
 	<script src="lib/angular/angular.js"></script>
 	<script src="lib/angular/angular-resource.js"></script>
@@ -25,12 +25,12 @@
 		<div class="row">
 			<div class="span6">
 				<small>
-				<a href="#" ng-init="isCollapsed=true" ng-click="isCollapsed = !isCollapsed">{{ isCollapsed && 'show selected ids' || 'hide'}}</a>
+				<a ng-init="isCollapsed=true" ng-click="isCollapsed = !isCollapsed">{{ isCollapsed && 'show selected ids' || 'hide'}}</a>
 				<div collapse='isCollapsed'>
 				<ul class='unstyled bs-callout bs-callout-info'>
-					<li><b>Selected User:</b> {{selectedUserId|json}}</li>
+					<li><b>Selected User:</b> {{selectedUser._id|| "n/a"|json}}</li>
 					<li><b>Selected Competition:</b> {{selectedCompetition._id|| "n/a"|json}}</li>
-					<li><b>Selected Plan:</b> {{selectedPlanId|json}}</li>
+					<li><b>Selected Plan:</b> {{selectedPlan._id|| "n/a"|json}}</li>
 				</ul>
 				</div>
 				</small>
@@ -42,8 +42,50 @@
 		<!-- selection panel -->
 		<div class="row">
 
-			<div class="span4">
+			<div class="span4" ng-controller="UserListCtrl">
 				<h4>Usuario</h4>
+				<div class="btn-group">
+					<button type="button" class="btn btn-success dropdown-toggle">
+					{{selectedUser.name||"Ninguno"}} <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li ng-repeat="user in users">
+							<a ng-click="select(user)">{{user.name}}, {{user.birthdate}}</a>
+						</li>
+						<li class="divider"></li>
+						<li><a ng-click="select(null)">Ninguno</a></li>
+					</ul>
+				</div>
+
+				<br>
+
+				<div class="well well-small">
+					<dl ng-hide="editingUser">
+						<dt>Nombre:</dt>
+						<dd>{{selectedUser.name}}</dd>
+						<dt>Fecha de Nacimiento</dt>
+						<dd>{{selectedUser.birthdate}}</dd>
+					</dl>
+					<form ng-show="editingUser">
+						<div class="form-group">
+							<label for="user-name">Nombre:</label>
+							<input id="user-name" type="text" ng-model="editingUser.name">
+						</div>
+						<div class="form-group">
+							<label for="user-birthdate">Fecha de Nacimiento:</label>
+							<input id="user-birthdate" type="date" ng-model="editingUser.birthdate">
+						</div>
+						<button class="btn btn-small" ng-click="save()">Guardar</button>
+						<button class="btn btn-small" ng-click="cancel()">Cancelar</button>
+					</form>
+					<div ng-hide="editingUser">
+						<a class="action" ng-click="editUser()">editar</a>
+						| <a class="action" ng-click="addUser()">nuevo</a>
+						| <a class="action" ng-click="delete(selectedUser)">borrar</a>
+					</div>
+				</div>
+
+				<!--
 				<ul class="users unstyled" ng-controller="UserListCtrl">
 					<li class="user" ng-repeat="user in users" ng-class="{selected: user._id==selectedUserId}" ng-click='select(user)'>
 						<span ng-hide="editUser">
@@ -57,7 +99,7 @@
 						</span>
 						<button ng-click='delete(user)'>x</button>
 					</li>
-					<li class="user" ng-click='select({_id:null})'>none</li>
+					<li class="user" ng-click='select(null)'>none</li>
 					<li ng-hide="addMode" class="addButton">
 						<button ng-click="toggleAddMode()">+</button>
 					</li>
@@ -68,6 +110,7 @@
 						<button ng-click='toggleAddMode()'>Cancel</button>
 					</li>
 				</ul>
+				-->
 			</div>
 
 			<div class="span4">

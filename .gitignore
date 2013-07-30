@@ -2,3 +2,4 @@
 test/node_modules
 npm-debug.log
 test/*_training_dump
+1client/lib/bootstrap

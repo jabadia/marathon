@@ -42,8 +42,8 @@ function CompetitionListCtrl($scope, $rootScope, $cookies, Competition)
 
 	$scope.select = function(competition)
 	{
-		$rootScope.selectedCompetitionId = competition._id;
-		$cookies.selectedCompetitionId = competition._id;
+		$rootScope.selectedCompetition = competition;
+		$cookies.selectedCompetitionId = competition? competition._id : "";
 	}
 }
 
@@ -53,8 +53,8 @@ function PlanListCtrl($scope, $rootScope, $cookies, Plan)
 
 	$scope.select = function(plan)
 	{
-		$rootScope.selectedPlanId = plan._id;
-		$cookies.selectedPlanId = plan._id;
+		$rootScope.selectedPlan = plan;
+		$cookies.selectedPlanId = plan? plan._id : "";
 	}
 }
 
@@ -70,7 +70,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		day.newPlannedRun = new PlannedRun(
 		{ 
-			pid 	: $scope.plan._id,
+			pid 	: $scope.selectedPlan._id,
 			prid 	: day.index,
 			distance: 0, 
 			comments: "" 
@@ -86,7 +86,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		day.newPlannedRun = new PlannedRun(
 		{ 
-			pid 	: $scope.plan._id,
+			pid 	: $scope.selectedPlan._id,
 			prid 	: day.index,
 			distance: day.plan.distance, 
 			comments: day.plan.comments 
@@ -109,7 +109,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			console.log("saved!!");
 			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newPlannedRun
 			delete day.newPlannedRun;
-			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			$scope.selectedPlan = Plan.get({pid: $rootScope.selectedPlanId}, function()
 			{
 				updateWeeks($scope);
 			});
@@ -125,13 +125,13 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 	{
 		var plannedRun = new PlannedRun(
 		{
-			pid: $scope.plan._id,
+			pid: $scope.selectedPlan._id,
 			prid: day.index
 		});
 		plannedRun.$delete(function()
 		{
 			console.log("deleted!!");
-			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			$scope.selectedPlan = Plan.get({pid: $rootScope.selectedPlanId}, function()
 			{
 				updateWeeks($scope);
 			});				
@@ -223,8 +223,8 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		$scope.weeks = [];
 		$scope.today = Utils.today();
 
-		if( !($scope.competition && $scope.competition._id) && 
-			!($scope.plan && $scope.plan._id) && 
+		if( !($scope.selectedCompetition && $scope.selectedCompetition._id) && 
+			!($scope.selectedPlan && $scope.selectedPlan._id) && 
 			!($scope.user && $scope.user._id))
 			return;
 
@@ -233,9 +233,9 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		// else, extend the calendar for two weeks from now
 
 		// put planned runs into days
-		if( $scope.competition && $scope.competition._id && $scope.plan && $scope.plan._id )
+		if( $scope.selectedCompetition && $scope.selectedCompetition._id && $scope.selectedPlan && $scope.selectedPlan._id )
 		{
-			var competitionDate = Utils.dateFromString( $scope.competition.date );
+			var competitionDate = Utils.dateFromString( $scope.selectedCompetition.date );
 
 			// console.log($scope.today);
 			// console.log(competitionDate);
@@ -268,7 +268,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 						date: date,
 						isWeekend: (date.getDay()== 0 || date.getDay()==6)
 					}
-					var plannedRun = $scope.plan.plannedRuns[dayIndex];
+					var plannedRun = $scope.selectedPlan.plannedRuns[dayIndex];
 					if( plannedRun )
 						day.plan = plannedRun;
 
@@ -344,34 +344,24 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		}
 	});
 
-	$rootScope.$watch('selectedCompetitionId', function(newId,oldId)
+	$scope.$watch('selectedCompetition', function(newCompetition,oldCompetition)
 	{
-		console.log("changed from",oldId,"to",newId);
-		if( $rootScope.selectedCompetitionId )
-			$scope.competition = Competition.get({cid: $rootScope.selectedCompetitionId}, function()
-			{
-				updateWeeks($scope);
-			});
-		else
-		{			
-			$scope.competition = null;			
-			updateWeeks($scope);
-		}
+		console.log("competition changed from",oldCompetition? oldCompetition._id : "-","to",newCompetition? newCompetition._id : "-");
+		updateWeeks($scope);
 	});
 
-	$rootScope.$watch('selectedPlanId', function(newId,oldId)
+	$rootScope.$watch('selectedPlan', function(newPlan,oldPlan)
 	{
-		console.log("changed from",oldId,"to",newId);
-		if( $rootScope.selectedPlanId )
-			$scope.plan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+		console.log("plan changed from",oldPlan? oldPlan._id : "-","to",newPlan? newPlan._id : "-");
+		if( newPlan && !newPlan.plannedRuns )
+		{
+			$scope.selectedPlan = Plan.get({pid: $scope.selectedPlan._id}, function()
 			{
 				updateWeeks($scope);
 			});
-		else
-		{
-			$scope.plan = null;			
-			updateWeeks($scope);
 		}
+		else
+			updateWeeks($scope);
 	});
 
 }

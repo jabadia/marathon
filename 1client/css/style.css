@@ -1,23 +1,23 @@
-* 
+/** 
 { 
 	font-family: "arial"; 
 }
-
-table.calendar
+*/
+/*table.calendar
 {
 	border-collapse: collapse;
 	font-size: 12px;
 }
-
-.week
+*/
+/*.week
 {
 	height: 250px;
 
 	margin: 0;
 	padding: 0;
 }
-
-.week-number
+*/
+/*.week-number
 {
 	width: 40px;
 
@@ -29,19 +29,18 @@ table.calendar
 	font-weight: bold;
 	text-align: center;
 }
-
-.day
+*/
+/*.day
 {
 	width:  110px;
 	border: 1px solid black;
-	/*background: #ddd;*/
 	position: relative;
 
 	margin: 0;
 	padding: 0;
 }
-
-.week-total
+*/
+/*.week-total
 {
 	width: 300px;
 	border: 1px solid black;
@@ -51,8 +50,8 @@ table.calendar
 	margin: 0;
 	padding: 0;
 }
-
-.plan, .actual, .empty, .date
+*/
+/*.plan, .actual, .empty, .date
 {
 	margin: 0;
 	padding: 2px;	
@@ -60,26 +59,27 @@ table.calendar
 	left:0;
 	right:0;
 }
-
-.date
+*/
+/*.date
 {
 	top: 0px;	
 	height: 15px;
 }
-
-.plan
+*/
+/*.plan
 {
 	top: 23px;
 	height: 60px;
 }
 
-.actual, .empty
+*/
+/*.actual, .empty
 {
 	bottom: 0px;
 	height: 100px;
 }
-
-.actual
+*/
+/*.actual
 {
 	background: #dfd;
 	color: #080;
@@ -111,12 +111,12 @@ table.calendar
 {
 	font-size: 12px;
 }
-
+*/
 .selected
 {
 	font-weight: bold;
 }
-
+/*
 li
 {
 	cursor: pointer;
@@ -140,4 +140,45 @@ td.today
 .week input
 {
 	width: 90px;
+}*/
+
+
+/* Side notes for calling out things
+-------------------------------------------------- */
+
+/* Base styles (regardless of theme) */
+.bs-callout {
+  margin: 20px 0;
+  padding: 15px 30px 15px 15px;
+  border-left: 5px solid #eee;
+}
+.bs-callout h4 {
+  margin-top: 0;
+}
+.bs-callout p:last-child {
+  margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+  background-color: #fff;
+}
+
+/* Themes for different contexts */
+.bs-callout-danger {
+  background-color: #fcf2f2;
+  border-color: #dFb5b4;
+}
+.bs-callout-warning {
+  background-color: #fefbed;
+  border-color: #f1e7bc;
+}
+.bs-callout-info {
+  background-color: #f0f7fd;
+  border-color: #d0e3f0;
+}
+
+
+.dropdown-menu a 
+{
+	cursor: pointer;
 }

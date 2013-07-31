@@ -26,7 +26,7 @@
 		<div class="row">
 			<div class="span6">
 				<small>
-				<a ng-init="isCollapsed=true" ng-click="isCollapsed = !isCollapsed">{{ isCollapsed && 'show selected ids' || 'hide'}}</a>
+				<a class="action" ng-init="isCollapsed=true" ng-click="isCollapsed = !isCollapsed">{{ isCollapsed && 'show selected ids' || 'hide'}}</a>
 				<div collapse='isCollapsed'>
 				<ul class='unstyled bs-callout bs-callout-info'>
 					<li><b>Selected User:</b> {{selectedUser._id|| "n/a"|json}}</li>
@@ -44,7 +44,7 @@
 		<div class="row">
 
 			<div class="span4" ng-controller="UserListCtrl">
-				<h4>Usuario</h4>
+				<h3>Usuario</h3>
 				<div class="btn-group">
 					<button type="button" class="btn btn-success dropdown-toggle">
 					{{selectedUser.name||"Ninguno"}} <span class="caret"></span>
@@ -89,7 +89,7 @@
 			</div>
 
 			<div class="span4" ng-controller="CompetitionListCtrl">
-				<h4>Competición</h4>
+				<h3>Competición</h3>
 				<div class="btn-group">
 					<button type="button" class="btn btn-primary dropdown-toggle">
 					{{selectedCompetition.name||"Ninguna"}} <span class="caret"></span>
@@ -140,7 +140,7 @@
 			</div>
 
 			<div class="span4">
-				<h4>Plan de Entrenamiento</h4>
+				<h3>Plan de Entrenamiento</h3>
 				<div class="btn-group" ng-controller="PlanListCtrl">
 					<button type="button" class="btn btn-primary dropdown-toggle">
 					{{selectedPlan.name||"Ninguno"}} <span class="caret"></span>
@@ -162,7 +162,8 @@
 		<div class="row">
 			
 			<div class="span12 main" ng-controller="WeekCalendarCtrl">
-
+				
+				<h3>Calendario</h3>
 				<table class="calendar table">			
 					
 					<tr class="week-header">
@@ -180,50 +181,51 @@
 					<tr class="week" ng-class="{'current-week': week.isCurrentWeek}" ng-repeat="week in weeks" id="w{{week.index}}">
 						<td class="week-number">{{week.index}}</td>
 						<td class="day" ng-class="{today: day.isToday, 'weekend': day.isWeekend}" ng-repeat="day in week.days" id="d{{day.index}}">
-							<div class="date">{{day.index}} | {{day.date| formatDate}}</div>
+							<div class="date"><!--{{day.index}} | -->{{day.date| formatDate}}</div>
 							<div class="plan">
 								<div ng-show="(day.plan && !day.newPlannedRun)" ng-dblclick="editPlannedRun(day)">
-									<span class="distance">{{day.plan.distance | formatDistance }}</span>
-									<span class="comments">{{day.plan.comments}}</span>
-									<button ng-click="deletePlannedRun(day)">x</button>
+									<span class="distance">{{day.plan.distance | formatDistance }}</span><br>
+									<span class="comments">{{day.plan.comments}}</span><br>
+									<a class="action" ng-click="deletePlannedRun(day)">borrar</a>
 								</div>
 								<div ng-hide="day.plan">
-									<button ng-hide="day.newPlannedRun" ng-click="addPlannedRun(day)">+</button>
+									<a class="action" ng-hide="day.newPlannedRun" ng-click="addPlannedRun(day)">+ plan</a>
 								</div>
 								<div ng-show="day.newPlannedRun">
 									<input ng-model="day.newPlannedRun.distance">
 									<input ng-model="day.newPlannedRun.comments">
-									<button ng-click="savePlannedRun(day)">save</button>
-									<button ng-click="cancelPlannedRun(day)">cancel</button>
+									<button class="btn btn-small" ng-click="savePlannedRun(day)">Guardar</button>
+									<button class="btn btn-small" ng-click="cancelPlannedRun(day)">Cancelar</button>
 								</div>
 							</div>
 							<div class="actual">
 								<div ng-show="(day.actual && !day.newActualRun)" ng-dblclick="editActualRun(day)">
 									<span class="distance">{{day.actual.distance | formatDistance }}</span><br />
 									<span class="time">{{day.actual.time | formatTime }}</span>
-									<span class="pace">({{day.actual.pace | formatTime }}/km)</span>
-									<button ng-click="deleteActualRun(day)">x</button>
+									<span class="pace">({{day.actual.pace | formatTime }}/km)</span><br>
+									<a class="action" ng-click="deleteActualRun(day)">borrar</a>
 								</div>
-								<div ng-hide="day.actual" ng-show="day.isToday">
-									<button ng-hide="day.newActualRun" ng-click="addActualRun(day)">+</button>
+								<div ng-show="day.isToday" ng-hide="day.actual">
+									<a class="action" ng-hide="day.newActualRun" ng-click="addActualRun(day)">+ carrera</a>
 								</div>
 								<div ng-show="day.newActualRun">
-									<input ng-model="day.newActualRun.distance">
-									<input ng-model="day.newActualRun.timeStr">
-									<button ng-click="saveActualRun(day)">save</button>
-									<button ng-click="cancelActualRun(day)">cancel</button>
+									<input ng-model="day.newActualRun.distance"><br>
+									<input ng-model="day.newActualRun.timeStr"><br>
+									<button class="btn btn-small" ng-click="saveActualRun(day)">Guardar</button>
+									<button class="btn btn-small" ng-click="cancelActualRun(day)">Cancelar</button>
 								</div>
 							</div>
 							<!--<div ng-show="(day.plan && !day.actual)" class="empty"></div>-->
 						</td>
 						<td class="week-total">
+							<div class="date">{{week.index}}</div>
+							<div class="plan">					
+								<span class="distance">{{week.plan.distance | formatDistance }}</span><br />					
+							</div>
 							<div class="actual">
 								<span class="distance">{{week.actual.distance | formatDistance }}</span><br />
 								<span class="time">{{week.actual.time | formatTime }}</span>
 								<span class="pace">({{week.actual.pace | formatTime }}/km)</span>
-							</div>
-							<div class="plan">					
-								<span class="distance">{{week.plan.distance | formatDistance }}</span><br />					
 							</div>
 						</td>
 					</tr>

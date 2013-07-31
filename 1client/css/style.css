@@ -30,16 +30,6 @@
 	text-align: center;
 }
 */
-/*.day
-{
-	width:  110px;
-	border: 1px solid black;
-	position: relative;
-
-	margin: 0;
-	padding: 0;
-}
-*/
 /*.week-total
 {
 	width: 300px;
@@ -178,18 +168,62 @@ td.today
 }
 
 
-.dropdown-menu a 
+
+/* upper part */
+
+.dropdown-menu a 	{	cursor: pointer; }
+[contenteditable] 	{	cursor: pointer; }
+.action 			{	cursor: pointer; }
+
+
+
+/* calendar table */
+
+.week-number
 {
-	cursor: pointer;
+	width: 30px;
+	font-size: large;
+	font-weight: bold;
 }
 
-
-[contenteditable]
+.day
 {
-	cursor: pointer;
+	width:  110px;
+	position: relative;
 }
 
-.action
+.week-total
 {
-	cursor: pointer;
+	width: 200px;
+}
+
+.day .date, .week-total .date
+{
+	font-size: x-small;
+}
+
+.week input
+{
+	width: 90px;
+}
+
+.plan
+{
+	height: 80px;
+}
+
+.actual
+{
+	height: 80px;
+}
+
+.actual
+{
+  /*color: #46AA47;*/
+  color: #27ae60;
+}
+
+td.today
+{
+	border: 2px solid #c0392b;
 }

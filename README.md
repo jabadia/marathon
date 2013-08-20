@@ -3,6 +3,8 @@ marathon
 
 training plan for marathon running, and angular.js learning exercise
 
+Plans.get() falla
+
 por hacer:
 ==========
 - estilos css

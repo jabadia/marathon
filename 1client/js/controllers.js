@@ -273,7 +273,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			console.log("saved!!");
 			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newActualRun
 			delete day.newActualRun;
-			$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
+			$scope.actualRuns = ActualRun.query({ uid: $scope.selectedUser._id }, function()
 			{
 			 	updateWeeks($scope);
 			});
@@ -295,7 +295,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		actualRun.$delete(function()
 		{
 			console.log("deleted!!");
-			$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
+			$scope.actualRuns = ActualRun.query({ uid: $scope.selectedUser._id }, function()
 			{
 			 	updateWeeks($scope);
 			});				
@@ -379,7 +379,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 				week.days.forEach(function(day)
 				{
 					var date = Utils.stringFromDate(day.date);
-					var userRuns = $scope.runs;
+					var userRuns = angular.copy($scope.actualRuns);
 					while( userRuns.length && userRuns[0].date < date )
 						userRuns.shift();
 
@@ -419,18 +419,24 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		var newUserId = newUser? newUser._id : "-";
 		console.log("user changed from",oldUserId,"to",newUserId);
 		if( oldUserId != newUserId )
+		{
 			if( newUser && newUser._id )
-				$scope.runs = ActualRun.query({ uid: $scope.selectedUser._id }, function()
-				{
+			{				
+				$scope.actualRuns = ActualRun.query({ uid: newUser._id }, function(runs)
+				{					 
 					updateWeeks($scope);
 				});
+			}
 			else
 			{
-				delete $scope.runs;
+				delete $scope.actualRuns;
 				updateWeeks($scope);
 			}
+		}
 		else
+		{
 			updateWeeks($scope);
+		}
 	});
 
 	$rootScope.$watch('selectedCompetition', function(newCompetition,oldCompetition)

@@ -196,7 +196,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			console.log("saved!!");
 			// FALTA: actualizar instantaneamente, asignando a day.plan los valores que vienen en day.newPlannedRun
 			delete day.newPlannedRun;
-			$scope.selectedPlan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			$scope.selectedPlan = Plan.get({pid: $scope.selectedPlan._id}, function()
 			{
 				updateWeeks($scope);
 			});
@@ -218,7 +218,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 		plannedRun.$delete(function()
 		{
 			console.log("deleted!!");
-			$scope.selectedPlan = Plan.get({pid: $rootScope.selectedPlanId}, function()
+			$scope.selectedPlan = Plan.get({pid: $scope.selectedPlan._id}, function()
 			{
 				updateWeeks($scope);
 			});				
@@ -433,7 +433,7 @@ function WeekCalendarCtrl($scope, $rootScope, User, Competition, Plan, PlannedRu
 			updateWeeks($scope);
 	});
 
-	$scope.$watch('selectedCompetition', function(newCompetition,oldCompetition)
+	$rootScope.$watch('selectedCompetition', function(newCompetition,oldCompetition)
 	{
 		console.log("competition changed from",oldCompetition? oldCompetition._id : "-","to",newCompetition? newCompetition._id : "-");
 		updateWeeks($scope);

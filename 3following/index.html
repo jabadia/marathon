@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>NYC Marathon 2013</title>
+
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+
+	<!-- esri -->
+	<link rel="stylesheet" href="http://js.arcgis.com/3.7/js/esri/css/esri.css">
+	<script src="http://jsdev.arcgis.com/3.7/"></script>
+
+	<script src="main.js"></script>
+	<script src="esrimap.js"></script>
+
+	<link rel="stylesheet" href="style.css">
+
+</head>
+<body ng-app="MarathonApp">
+	<div class="container">
+		<div class="row">
+			<h2>NYC Marathon</h2>
+			<esrimap webmap-id="f858831138e74b8087351ab7dd2a37f6" center="center"></esrimap>
+		</div>
+	</div>
+	
+</body>
+</html>

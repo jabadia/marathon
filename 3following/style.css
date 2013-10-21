@@ -1,0 +1,21 @@
+#mapDiv
+{
+	opacity: 0.01;
+}
+
+#mapDiv[data-loaded]
+{
+	opacity: 1.0;
+	transition-duration: 3s;
+}
+
+/* no me funciona */
+#mapDiv[data-updating]:after
+{
+	content: 'hola';
+}
+
+.blue
+{
+	background-color: blue;
+}

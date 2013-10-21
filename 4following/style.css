@@ -1,0 +1,26 @@
+#map
+{
+	opacity: 0.01;
+	height: 550px;
+}
+
+#map[data-loaded]
+{
+	opacity: 1.0;
+	transition-duration: 3s;
+}
+
+#bookmarks
+{
+	margin-top: 5px;
+}
+
+#bookmarks button
+{
+	margin-right: 2px;
+}
+
+img
+{
+	cursor: pointer;
+}

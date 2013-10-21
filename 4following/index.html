@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>NYC Marathon 2013</title>
+
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+
+    <script src="dojoConfig.js"></script>
+
+	<!-- esri -->
+	<link rel="stylesheet" href="http://js.arcgis.com/3.7/js/esri/css/esri.css">
+	<script src="http://jsdev.arcgis.com/3.7/"></script>
+
+	<script src="main.js"></script>
+	<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+	<div class="container" >
+		<div class="row">
+			<div class="span12">
+				<h2><i <i class="icon-globe"></i> NYC Marathon</h2>
+				<div id="map"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="span12" id="bookmarks">
+				<!-- populated in createBookmarkButtons() -->
+			</div>
+		</div>
+		<div class="row">
+			<div class="span4">
+				<h3><i class="icon-male"></i> Runners</h3>
+				<table id="runners" class="table">
+					<!-- populated in populateRunnersTable() -->
+				</table>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

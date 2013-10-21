@@ -2,9 +2,20 @@
 
 var app = angular.module('MarathonApp', ['EsriMap'])
 
-function MainCtrl($scope)
+function MainCtrl($scope, featureservice)
 {
 	$scope.center = {};	
+
+	featureservice("http://services2.arcgis.com/CQWCKwrSm5dkM28A/arcgis/rest/services/runners/FeatureServer/0")
+	.success(function(data,status)
+	{
+		$scope.runners = data.features;
+		console.log($scope.runners);
+	})
+	.error(function(data,status)
+	{
+		console.log("error getting features", data, status);
+	});
 }
 
 /*

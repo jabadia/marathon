@@ -19,10 +19,24 @@
 
 </head>
 <body ng-app="MarathonApp">
-	<div class="container">
+	<div class="container" ng-controller="MainCtrl">
 		<div class="row">
-			<h2>NYC Marathon</h2>
-			<esrimap webmap-id="f858831138e74b8087351ab7dd2a37f6" center="center"></esrimap>
+			<div class="span12">
+				<h2><i ng-show="loading" class="icon-refresh icon-spin"></i><i ng-hide="loading" class="icon-globe"></i> NYC Marathon</h2>
+				<esrimap webmap-id="f858831138e74b8087351ab7dd2a37f6" center="center"></esrimap>
+			</div>
+		</div>
+		<div class="row">
+			<div class="span4">
+				<h3><i class="icon-male"></i> Runners</h3>
+				<table>
+					<tr ng-repeat="runner in runners">
+						<td>{{runner.attributes.bib}}</td>
+						<td>{{runner.attributes.name}}</td>
+						<td>{{runner.attributes.picture}}</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</div>
 	

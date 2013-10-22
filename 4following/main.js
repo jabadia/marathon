@@ -56,6 +56,35 @@ function(dom, array, Color, all, Deferred, number, lang,
 		return value? value : defaultValue;
 	}
 
+	function format_distance(d)
+	{
+		return number.format(d / 1000, { places:3 }) + " km";
+	}
+
+	function format_time(t)
+	{
+		var hours   = Math.floor( t / 3600 );
+		var minutes = Math.floor( t / 60 ) % 60;
+		var seconds = t % 60;
+		var result = '';
+		if(hours > 0)
+			result = (hours<10? '0' : '') + hours + ":";
+		result += (minutes<10? '0' : '') + minutes + ':' + (seconds<10? '0':'') + seconds;
+		return result;
+	}
+
+	function calculate_pace(t_s,d_m)
+	{
+		if( !d_m )
+			return 0;
+
+		return t_s / d_m * 1000;
+	}
+
+	//
+	//
+	//
+
 	function initLabels(pksLayer)
 	{
 		var pksLabelSymbol = new TextSymbol().setColor( new Color("#FFF"));
@@ -75,10 +104,10 @@ function(dom, array, Color, all, Deferred, number, lang,
 		$('#bookmarks').empty();
 		bookmarks.forEach(function(bookmark)
 		{
-			var icon = $('<i />').addClass('icon-search');
+			//var icon = $('<i />').addClass('icon-search');
 			var newButton = $('<button />')
 				.addClass('btn')
-				.append(icon)
+			//	.append(icon)
 				.append(" " + bookmark.name)
 				.on('click', function(evt)
 			{
@@ -101,6 +130,18 @@ function(dom, array, Color, all, Deferred, number, lang,
 			var firstLetter = runner.attributes.name[0].toUpperCase();
 			if(firstLetter == "M") firstLetter = "M.";
 
+			var checkbox = $('<button />')
+				.addClass('btn')
+				.text('Follow')
+				.on('click', function(evt)
+				{
+					$(this).toggleClass('btn-info')
+					if($(this).hasClass('btn-info'))
+						addFollow(runner)
+					else
+						removeFollow(runner)
+				})
+
 			var icon = $('<img />')
 				.attr('src', 'http://static.arcgis.com/images/Symbols/AtoZ/red'+ firstLetter +'.png')
 				.on('click', function(evt)
@@ -109,13 +150,40 @@ function(dom, array, Color, all, Deferred, number, lang,
 					map.centerAndZoom(runner.geometry, 16);
 				});
 
+			var pace_s_km = calculate_pace(runner.attributes.total_time_s,runner.attributes.total_distance_m);
+
 			var row = $('<tr />')
+				.append( $('<td />').append(checkbox))
 				.append( $("<td />").append(icon) )
-				.append("<td>" + def(runner.attributes.bib,"-")  + "</td>")
+				.append("<td>" + number.format(runner.attributes.bib,{places:0})  + "</td>")
 				.append("<td>" + runner.attributes.name + "</td>")
+				.append("<td>" + format_distance(runner.attributes.total_distance_m) + "</td>")
+				.append("<td>" + format_time(runner.attributes.total_time_s) + "</td>")
+				.append("<td>" + format_time(pace_s_km) + " / km.</td>")
 			rows.push(row);
 		})
-		$('#runners').append(rows);
+		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace',''].map(function(title){ return $('<th />').text(title); });
+		$('#runners').append($('<thead />').append($('<tr />').append(header_cells)));
+		$('#runners').append($('<tbody />').append(rows));
+	}
+
+	//
+	// follow runners
+	//
+	var following = []
+	function addFollow(runner)
+	{
+		console.log(following);
+		if( following.indexOf(runner) == -1)
+			following.push(runner);
+		console.log(following);
+	}
+
+	function removeFollow(runner)
+	{
+		console.log(following);
+		following = _.without(following, runner);
+		console.log(following);
 	}
 
 

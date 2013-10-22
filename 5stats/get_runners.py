@@ -27,6 +27,9 @@ from operator import attrgetter
 search_url = "http://web2.nyrrc.org/cgi-bin/htmlos.cgi/mar-programs/archive/archive_search.html"
 proxies = None #{ 'http': '127.0.0.1:8888'}
 
+min_net_time = None
+max_net_time = None
+
 def parse_time(t):
 	if not t:
 		return 0
@@ -34,14 +37,14 @@ def parse_time(t):
 	return int(hours) * 3600 + int(minutes) * 60 + int(seconds)
 
 def format_time(t):
-	seconds = t % 60
-	t = (t - seconds) / 60
-	minutes = t % 60
-	hours = (t - minutes)  / 60
+	minutes,seconds = divmod(t,60)
+	hours,minutes = divmod(minutes,60)
 	return "{0}:{1:02}:{2:02}".format(hours,minutes,seconds) if hours > 0 else "{1:02}:{2:02}".format(minutes,seconds)
 
 class Runner:
 	def __init__(self,tr):
+		global min_net_time, max_net_time
+
 		tds = tr.find_all("td")
 		self.first_name   = tds[0].string
 		self.last_name    = tds[1].string
@@ -79,11 +82,21 @@ class Runner:
 		self.sec_40k      = parse_time(self.time_40k)
 		self.sec_total    = parse_time(self.net_time)
 
+		if not min_net_time or self.net_time < min_net_time:
+			min_net_time = self.sec_total
+
+		if not max_net_time or self.net_time > max_net_time:
+			max_net_time = self.sec_total
+
 	def __repr__(self):
-		return ("{0.first_name},{0.last_name},{0.sex},{0.age},{0.bib},{0.team},{0.state},{0.country_res},{0.citizenship}," + 
+		return unicode("{0.first_name},{0.last_name},{0.sex},{0.age},{0.bib},{0.team},{0.state},{0.country_res},{0.citizenship}," + 
 			"{0.place},{0.gender_place},{0.age_place}," +
-			"{0.gun_time},{0.net_time},{0.time_5k},{0.time_10k},{0.time_15k},{0.time_20k},{0.time_half},{0.time_25k},{0.time_30k},{0.time_35k},{0.time_40k}" +
+			"{0.gun_time},{0.net_time},{0.time_5k},{0.time_10k},{0.time_15k},{0.time_20k},{0.time_half},{0.time_25k},{0.time_30k},{0.time_35k},{0.time_40k}," +
 			"{0.sec_5k},{0.sec_10k},{0.sec_15k},{0.sec_20k},{0.sec_half},{0.sec_25k},{0.sec_30k},{0.sec_35k},{0.sec_40k},{0.sec_total}").format(self)
+
+def print_header():
+	fields = ["FIRST NAME","LAST NAME","GENDER","AGE","BIB","TEAM","STATE","COUNTRY","CITIZENSHIP","PLACE","GENDER PLACE","AGE PLACE","GUN TIME","NET TIME","5K","10K","15K","20K","HALF","25K","30K","35K","40K","SEC 5K","SEC 10K","SEC 15K","SEC 20K","SEC HALF","SEC 25K","SEC 30K","SEC 35K","SEC 40K","SEC TOTAL"]
+	sys.stdout.write("{0}\n".format(','.join(fields)))
 
 def get_form_action(s):
 	r = s.get(search_url)
@@ -99,10 +112,11 @@ def extract_runners_table(s,html):
 	runnerCount = 0
 	for tr in table.find_all('tr', bgcolor="#FFFFFF"):
 		runner = Runner(tr)
-#		print runner
+		sys.stdout.write(u"{0}\n".format(runner))
 		runnerCount += 1
 
 	sys.stderr.write("read {0} runners\n".format(runnerCount))
+	sys.stderr.write("times between {0} and {1}\n".format(format_time(min_net_time),format_time(max_net_time)))
 
 	next_button = soup.find('input', value='Next 100 >')
 	if next_button:
@@ -124,7 +138,7 @@ def extract_runners_table(s,html):
 def do_first_search(s,form_action, f_hh, f_mm, t_hh, t_mm):
 	params = {
 		'search.method'	: 'search.time',
-		'input.searchyear' : 2011,
+		'input.searchyear' : 2008,
 		'input.top'     : 10,
 		'input.top.wc'  : 10,
 		'top.wc.type'   : 'P',
@@ -144,8 +158,10 @@ def do_first_search(s,form_action, f_hh, f_mm, t_hh, t_mm):
 def main(name):
 	s = requests.Session();
 	form_action = get_form_action(s)
-	do_first_search(s,form_action, 3,50, 3,52)
+	print_header()
+	do_first_search(s,form_action, 3,50, 4,50)
+	sys.stderr.write("times between {0} and {1}\n".format(format_time(min_net_time),format_time(max_net_time)))
 
 if __name__=="__main__":
-	# sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+	sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 	main(*sys.argv)

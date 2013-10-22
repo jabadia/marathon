@@ -5,6 +5,7 @@ var operationalLayers;
 var runnersLayer;
 var pksLayer;
 var bookmarks;
+var marathonRoute;
 
 require(["dojo/dom",
 	"dojo/_base/array",
@@ -35,11 +36,14 @@ require(["dojo/dom",
 	"esri/request",
 	"esri/arcgis/utils",
 
+	"esri/geometry/geodesicUtils", "esri/units", "esri/geometry/mathUtils",
+
 	"jquery","dojo/domReady!"
 ], 
 function(dom, array, Color, all, Deferred, number, lang,
 	domUtils, Map, Graphic, Geometry, Point, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query,
 	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils,
+	geodesicUtils, Units, mathUtils,
 	$) 
 {
 	//
@@ -148,6 +152,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 				{
 					console.log(runner.attributes.name);
 					map.centerAndZoom(runner.geometry, 16);
+					estimateRunnerPosition(runner);
 				});
 
 			var pace_s_km = calculate_pace(runner.attributes.total_time_s,runner.attributes.total_distance_m);
@@ -186,6 +191,50 @@ function(dom, array, Color, all, Deferred, number, lang,
 		console.log(following);
 	}
 
+	function estimateRunnerPosition(runner)
+	{
+		console.log(marathonRoute);
+		var pos = getPointAlongLine(marathonRoute.geometry, runner.attributes.total_distance_m);
+		console.log(pos);
+		runner.setGeometry(pos);
+	}
+
+	function distance(p0,p1)
+	{
+		// return mathUtils.getLength(p0,p1);
+
+		var pl = new Polyline({ "paths" : [[[p0.x,p0.y],[p1.x,p1.y]]], "spatialReference": map.spatialReference });
+		var pl_gc = webMercatorUtils.webMercatorToGeographic(pl);
+		var lengths = geodesicUtils.geodesicLengths([pl_gc], Units.METERS);
+		return lengths[0];
+	}
+
+	function getPointAlongLine(line,distance)
+	{
+		var sr = map.spatialReference;
+		var distanceCovered = 0;
+		var i=0,npoints = line.paths[0].length;
+		while(distanceCovered <= distance && i<npoints-1)
+		{
+			var currentPoint = line.getPoint(0,i);
+			var nextPoint    = line.getPoint(0,i+1);
+			var currentDistance = distance(currentPoint,nextPoint);
+
+			if( distanceCovered + currentDistance >= distance )
+			{
+				var t = currentDistance / (distance - distanceCovered);
+				var x = currentPoint.x * (1-t) + nextPoint.x * t;
+				var y = currentPoint.y * (1-t) + nextPoint.y * t;
+				return new Point(x,y,sr);
+			}
+			else
+			{
+				distanceCovered += currentDistance;
+				i += 1;
+			}
+		}
+		return line.getPoint(0,npoints-1);
+	}
 
 	//
 	// main
@@ -202,6 +251,11 @@ function(dom, array, Color, all, Deferred, number, lang,
 		runnersLayer = map.getLayer( getLayer("runners").id );
 		pksLayer = map.getLayer( getLayer("NYC - PKs").id );
 		bookmarks = response.itemInfo.itemData.bookmarks;
+		map.getLayer( getLayer("NYC - Route").id ).on('update-end',function(evt)
+		{
+			marathonRoute = evt.target.graphics[0];
+			console.log(marathonRoute);
+		});
 
 		// pk labels
 		initLabels(pksLayer);

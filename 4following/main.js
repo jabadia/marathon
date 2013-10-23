@@ -20,6 +20,7 @@ require(["dojo/dom",
 	"esri/graphic",
 	"esri/geometry/Geometry",
 	"esri/geometry/Point",
+	"esri/geometry/Polyline",
 	"esri/geometry/webMercatorUtils",
 	"esri/tasks/GeometryService",
 	"esri/tasks/FeatureSet",
@@ -38,14 +39,18 @@ require(["dojo/dom",
 
 	"esri/geometry/geodesicUtils", "esri/units", "esri/geometry/mathUtils",
 
-	"jquery","dojo/domReady!"
+	"jquery",
+	"dojo/domReady!"
 ], 
 function(dom, array, Color, all, Deferred, number, lang,
-	domUtils, Map, Graphic, Geometry, Point, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query,
+	domUtils, Map, Graphic, Geometry, Point, Polyline, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query,
 	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils,
 	geodesicUtils, Units, mathUtils,
 	$) 
 {
+require(["bootstrap-slider.js"], function()
+{
+
 	//
 	// functions
 	//
@@ -194,7 +199,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 	function estimateRunnerPosition(runner)
 	{
 		console.log(marathonRoute);
-		var pos = getPointAlongLine(marathonRoute.geometry, runner.attributes.total_distance_m);
+		var pos = getPointAlongLine(marathonRoute, runner.attributes.total_distance_m);
 		console.log(pos);
 		runner.setGeometry(pos);
 	}
@@ -209,22 +214,26 @@ function(dom, array, Color, all, Deferred, number, lang,
 		return lengths[0];
 	}
 
-	function getPointAlongLine(line,distance)
+	function getPointAlongLine(line,dist)
 	{
 		var sr = map.spatialReference;
 		var distanceCovered = 0;
 		var i=0,npoints = line.paths[0].length;
-		while(distanceCovered <= distance && i<npoints-1)
+		while(distanceCovered <= dist && i<npoints-1)
 		{
 			var currentPoint = line.getPoint(0,i);
 			var nextPoint    = line.getPoint(0,i+1);
 			var currentDistance = distance(currentPoint,nextPoint);
 
-			if( distanceCovered + currentDistance >= distance )
+			console.log(currentDistance, distanceCovered, dist)
+
+			if( distanceCovered + currentDistance >= dist )
 			{
-				var t = currentDistance / (distance - distanceCovered);
+				var t = (dist - distanceCovered) / currentDistance;
 				var x = currentPoint.x * (1-t) + nextPoint.x * t;
 				var y = currentPoint.y * (1-t) + nextPoint.y * t;
+
+				console.log('P',t,x,y);
 				return new Point(x,y,sr);
 			}
 			else
@@ -253,9 +262,28 @@ function(dom, array, Color, all, Deferred, number, lang,
 		bookmarks = response.itemInfo.itemData.bookmarks;
 		map.getLayer( getLayer("NYC - Route").id ).on('update-end',function(evt)
 		{
-			marathonRoute = evt.target.graphics[0];
+			marathonRoute = evt.target.graphics[0].geometry;
 			console.log(marathonRoute);
 		});
+
+		var markerSymbol = new SimpleMarkerSymbol();
+		//markerSymbol.setPath("M16,4.938c-7.732,0-14,4.701-14,10.5c0,1.981,0.741,3.833,2.016,5.414L2,25.272l5.613-1.44c2.339,1.316,5.237,2.106,8.387,2.106c7.732,0,14-4.701,14-10.5S23.732,4.938,16,4.938zM16.868,21.375h-1.969v-1.889h1.969V21.375zM16.772,18.094h-1.777l-0.176-8.083h2.113L16.772,18.094z");
+		markerSymbol.setPath("M16,3.5c-4.142,0-7.5,3.358-7.5,7.5c0,4.143,7.5,18.121,7.5,18.121S23.5,15.143,23.5,11C23.5,6.858,20.143,3.5,16,3.5z M16,14.584c-1.979,0-3.584-1.604-3.584-3.584S14.021,7.416,16,7.416S19.584,9.021,19.584,11S17.979,14.584,16,14.584z");
+		markerSymbol.setOffset(0,15);
+		markerSymbol.setColor(new Color("#3498db"));
+
+		// slider
+		var slider = $('.slider').slider()
+			.on('slide', function(evt)
+			{
+				console.log(evt);
+				console.log(slider);
+				var dist = slider.getValue() * 1000;
+				var pos = getPointAlongLine(marathonRoute, dist);
+				map.graphics.clear();
+				map.graphics.add( new Graphic( pos, markerSymbol));
+			})
+			.data('slider');
 
 		// pk labels
 		initLabels(pksLayer);
@@ -271,4 +299,5 @@ function(dom, array, Color, all, Deferred, number, lang,
 	});
 
 
+})
 });

@@ -28,6 +28,7 @@ require(["dojo/dom",
 	"esri/layers/LabelLayer",
 	"esri/geometry/Extent",
 	"esri/tasks/query",
+	"esri/layers/FeatureLayer",
 
 	"esri/symbols/SimpleLineSymbol",
 	"esri/symbols/SimpleMarkerSymbol",
@@ -43,7 +44,7 @@ require(["dojo/dom",
 	"dojo/domReady!"
 ], 
 function(dom, array, Color, all, Deferred, number, lang,
-	domUtils, Map, Graphic, Geometry, Point, Polyline, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query,
+	domUtils, Map, Graphic, Geometry, Point, Polyline, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query, FeatureLayer,
 	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils,
 	geodesicUtils, Units, mathUtils,
 	$) 
@@ -132,7 +133,7 @@ require(["bootstrap-slider.js"], function()
 	{
 		$('#runners').empty();
 		var rows = [];
-		runners.features.forEach(function(runner)
+		runners.forEach(function(runner)
 		{
 			console.log(runner);
 
@@ -146,9 +147,11 @@ require(["bootstrap-slider.js"], function()
 				{
 					$(this).toggleClass('btn-info')
 					if($(this).hasClass('btn-info'))
-						addFollow(runner)
+						addFollow(runner);
 					else
-						removeFollow(runner)
+						removeFollow(runner);
+
+					zoomToFollowedRunners();
 				})
 
 			var icon = $('<img />')
@@ -156,8 +159,8 @@ require(["bootstrap-slider.js"], function()
 				.on('click', function(evt)
 				{
 					console.log(runner.attributes.name);
-					map.centerAndZoom(runner.geometry, 16);
 					estimateRunnerPosition(runner);
+					map.centerAndZoom(runner.geometry, 16);
 				});
 
 			var pace_s_km = calculate_pace(runner.attributes.total_time_s,runner.attributes.total_distance_m);
@@ -175,6 +178,37 @@ require(["bootstrap-slider.js"], function()
 		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace',''].map(function(title){ return $('<th />').text(title); });
 		$('#runners').append($('<thead />').append($('<tr />').append(header_cells)));
 		$('#runners').append($('<tbody />').append(rows));
+	}
+
+	function replaceFeatureLayer(layer)
+	{
+		var index = map.graphicsLayerIds.indexOf(layer.id);
+		var newLayer = new FeatureLayer( layer.url, {
+			mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+			outFields: ['*']
+		});
+		newLayer.setRenderer( layer.renderer );
+		map.removeLayer(layer);
+		map.addLayer(newLayer,index);
+		return newLayer;
+	}
+
+	function setFlickerFree(layer)
+	{
+		var graphicsLayer = new GraphicsLayer({id: layer.id + '_temp', opacity:0.8});
+		map.addLayer(graphicsLayer);
+		layer.on('update-start',function(evt)
+		{
+			graphicsLayer.clear();
+			layer.graphics.forEach(function(g)
+			{
+				graphicsLayer.add(g.toJson());
+			});
+		});
+		layer.on('update-end',function(evt)
+		{
+			graphicsLayer.clear();
+		});		
 	}
 
 	//
@@ -196,12 +230,39 @@ require(["bootstrap-slider.js"], function()
 		console.log(following);
 	}
 
+	function zoomToFollowedRunners()
+	{
+		if( following.length == 1 )
+		{
+			map.centerAndZoom(following[0].geometry, 16);
+		}
+		else if( following.length > 1)
+		{
+			var xmin = following[0].geometry.x;
+			var xmax = xmin;
+			var ymin = following[0].geometry.y;
+			var ymax = ymin;
+			following.forEach(function(runner)
+			{
+				xmin = Math.min( runner.geometry.x, xmin );
+				xmax = Math.max( runner.geometry.x, xmax );
+				ymin = Math.min( runner.geometry.y, ymin );
+				ymax = Math.max( runner.geometry.y, ymax );
+			});
+			var sr = map.spatialReference;
+			var extent = new Extent(xmin,ymin,xmax,ymax,sr);
+			map.setExtent(extent.expand(2));
+		}
+	}
+
+
 	function estimateRunnerPosition(runner)
 	{
-		console.log(marathonRoute);
-		var pos = getPointAlongLine(marathonRoute, runner.attributes.total_distance_m);
-		console.log(pos);
-		runner.setGeometry(pos);
+		if( marathonRoute )
+		{			
+			var pos = getPointAlongLine(marathonRoute, runner.attributes.total_distance_m);
+			runner.setGeometry(pos);
+		}
 	}
 
 	function distance(p0,p1)
@@ -245,6 +306,22 @@ require(["bootstrap-slider.js"], function()
 		return line.getPoint(0,npoints-1);
 	}
 
+	function updateAllRunnerPositions(runners)
+	{
+		runners.forEach(function(runner)
+		{
+			console.log('refreshing', runner.attributes.name);
+			estimateRunnerPosition(runner);
+		});
+	}
+
+	function refreshRunners(evt)
+	{
+		console.log('refreshRunners');
+		runnersLayer.refresh();
+	}
+
+
 	//
 	// main
 	//
@@ -254,48 +331,53 @@ require(["bootstrap-slider.js"], function()
 	}).then( function(response)
 	{
 		map = response.map;
-		console.log(response);
+		console.log(response);		
 
-		operationalLayers = response.itemInfo.itemData.operationalLayers;
-		runnersLayer = map.getLayer( getLayer("runners").id );
-		pksLayer = map.getLayer( getLayer("NYC - PKs").id );
-		bookmarks = response.itemInfo.itemData.bookmarks;
-		map.getLayer( getLayer("NYC - Route").id ).on('update-end',function(evt)
+		map.on('update-start', function(evt)
 		{
-			marathonRoute = evt.target.graphics[0].geometry;
-			console.log(marathonRoute);
+			console.log('update-start');
+			$('.icon-globe').addClass('icon-spin blue');
+		});
+		map.on('update-end', function(evt)
+		{
+			console.log('update-end');
+			$('.icon-globe').removeClass('icon-spin blue');
 		});
 
-		var markerSymbol = new SimpleMarkerSymbol();
-		//markerSymbol.setPath("M16,4.938c-7.732,0-14,4.701-14,10.5c0,1.981,0.741,3.833,2.016,5.414L2,25.272l5.613-1.44c2.339,1.316,5.237,2.106,8.387,2.106c7.732,0,14-4.701,14-10.5S23.732,4.938,16,4.938zM16.868,21.375h-1.969v-1.889h1.969V21.375zM16.772,18.094h-1.777l-0.176-8.083h2.113L16.772,18.094z");
-		markerSymbol.setPath("M16,3.5c-4.142,0-7.5,3.358-7.5,7.5c0,4.143,7.5,18.121,7.5,18.121S23.5,15.143,23.5,11C23.5,6.858,20.143,3.5,16,3.5z M16,14.584c-1.979,0-3.584-1.604-3.584-3.584S14.021,7.416,16,7.416S19.584,9.021,19.584,11S17.979,14.584,16,14.584z");
-		markerSymbol.setOffset(0,15);
-		markerSymbol.setColor(new Color("#3498db"));
+		operationalLayers = response.itemInfo.itemData.operationalLayers;
 
-		// slider
-		var slider = $('.slider').slider()
-			.on('slide', function(evt)
-			{
-				console.log(evt);
-				console.log(slider);
-				var dist = slider.getValue() * 1000;
-				var pos = getPointAlongLine(marathonRoute, dist);
-				map.graphics.clear();
-				map.graphics.add( new Graphic( pos, markerSymbol));
-			})
-			.data('slider');
+		// runners
+		runnersLayer = map.getLayer( getLayer("runners").id );
+		runnersLayer = replaceFeatureLayer( runnersLayer );
+		runnersLayer.on('update-end',function(evt)
+		{
+			var runners = runnersLayer.graphics;
+			populateRunnersTable(runners);
+			updateAllRunnerPositions(runners);
+			zoomToFollowedRunners();
+		});
+		//setFlickerFree(runnersLayer);
+
+		// bookmarks
+		bookmarks = response.itemInfo.itemData.bookmarks;
+
+		// route
+		var routeLayer = replaceFeatureLayer( map.getLayer( getLayer("NYC - Route").id ) );
+		routeLayer.on('update-end',function(evt)
+		{
+			marathonRoute = evt.target.graphics[0].geometry;
+		});
 
 		// pk labels
+		pksLayer = map.getLayer( getLayer("NYC - PKs").id );
 		initLabels(pksLayer);
 
 		// bookmark buttons
 		createBookmarkButtons(bookmarks);
 
-		// runners table
-		var query = new Query();
-		query.where = "1=1";
-		query.outFields = ["*"];
-		runnersLayer.queryFeatures(query).then(populateRunnersTable);
+		// refresh button
+		$('#refresh-button').on('click', refreshRunners);
+		$('#zoom-button').on('click', zoomToFollowedRunners);
 	});
 
 

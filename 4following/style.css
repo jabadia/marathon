@@ -2,6 +2,7 @@
 {
 	opacity: 0.01;
 	/*height: 550px;*/
+	height: 400px;
 }
 
 #map[data-loaded]
@@ -26,4 +27,9 @@
 img
 {
 	cursor: pointer;
+}
+
+.blue
+{
+	background-color: blue;
 }

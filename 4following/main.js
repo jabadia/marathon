@@ -49,9 +49,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 	geodesicUtils, Units, mathUtils,
 	$) 
 {
-require(["bootstrap-slider.js"], function()
-{
-
 	//
 	// functions
 	//
@@ -381,5 +378,4 @@ require(["bootstrap-slider.js"], function()
 	});
 
 
-})
 });

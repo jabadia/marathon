@@ -6,6 +6,7 @@ var runnersLayer;
 var pksLayer;
 var bookmarks;
 var marathonRoute;
+var playing;
 
 require(["dojo/dom",
 	"dojo/_base/array",
@@ -88,6 +89,74 @@ function(dom, array, Color, all, Deferred, number, lang,
 		return t_s / d_m * 1000;
 	}
 
+	function parse_distance(str)
+	{
+		if( str == "")
+			return 0;
+
+		str = String(str);
+		str = str.replace(',','.');
+		str = str.replace('km','.').replace('m','').replace(' ','');
+		var distance = parseFloat(str);
+		console.log("parsing " + str + " into " + distance)
+		if( isNaN(distance) )
+			throw new Error('bad value');
+		if( distance < 1000)
+			distance *= 1000;
+		return distance;
+	}
+	
+	function parse_time(str)
+	{
+		if( str == "")
+			return 0;
+
+		var time = 0;
+		var hours=0,mins=0,secs=0;
+		var components;
+
+		str = str.replace('h',':');
+		str = str.replace("'",":");
+		str = str.replace('"','');
+
+		if( str.indexOf(':') != -1)
+		{
+			components = str.split(':');
+			if( components.length == 3 )
+			{
+				hours = parseInt(components[0]);
+				components.shift();
+			}
+			if( components.length == 2 )
+			{
+				mins = parseInt(components[0]);
+				secs = parseInt(components[1]); 
+				if( isNaN(mins) || isNaN(secs) )
+					throw new Error('bad value');
+
+				if( hours == 0 && mins < 5) // se asume que 1:15 es 1h y 15min, en lugar de 1min y 15sec
+				{
+					hours = mins;
+					mins = secs;
+					secs = 0;
+				}
+			}
+		}
+		else
+		{
+			hours = 0;
+			mins = parseInt(str);
+			secs = 0;
+			if( isNaN(mins) )
+				throw new Error('bad value');
+		}
+		time = hours * 3600 + mins * 60 + secs;
+		console.log('parsing ' + str + ' into ' + time );
+		return time;
+	}
+
+
+
 	//
 	//
 	//
@@ -121,6 +190,10 @@ function(dom, array, Color, all, Deferred, number, lang,
 				$('#bookmarks button').removeClass('btn-primary');
 				$(this).addClass('btn-primary');
 				map.setExtent(new Extent(bookmark.extent));
+
+				// unfollow all
+				following = [];
+				$('#runners button').removeClass('btn-info');
 			});
 			$('#bookmarks').append(newButton);
 		});
@@ -158,6 +231,10 @@ function(dom, array, Color, all, Deferred, number, lang,
 					console.log(runner.attributes.name);
 					estimateRunnerPosition(runner);
 					map.centerAndZoom(runner.geometry, 16);
+					
+					// unfollow all
+					following = [];
+					$('#runners button').removeClass('btn-info');
 				});
 
 			var pace_s_km = calculate_pace(runner.attributes.total_time_s,runner.attributes.total_distance_m);
@@ -169,7 +246,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 				.append("<td>" + runner.attributes.name + "</td>")
 				.append("<td>" + format_distance(runner.attributes.total_distance_m) + "</td>")
 				.append("<td>" + format_time(runner.attributes.total_time_s) + "</td>")
-				.append("<td>" + format_time(pace_s_km) + " / km.</td>")
+				.append("<td>" + format_time(pace_s_km) + " per km.</td>")
 			rows.push(row);
 		})
 		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace',''].map(function(title){ return $('<th />').text(title); });
@@ -229,6 +306,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 
 	function zoomToFollowedRunners()
 	{
+		console.log(following);
 		if( following.length == 1 )
 		{
 			map.centerAndZoom(following[0].geometry, 16);
@@ -255,17 +333,15 @@ function(dom, array, Color, all, Deferred, number, lang,
 
 	function estimateRunnerPosition(runner)
 	{
-		if( marathonRoute )
-		{			
-			var pos = getPointAlongLine(marathonRoute, runner.attributes.total_distance_m);
-			runner.setGeometry(pos);
-		}
+		if( !marathonRoute )
+			return;
+
+		var pos = getPointAlongLine(marathonRoute, runner.attributes.total_distance_m);
+		runner.setGeometry(pos);
 	}
 
 	function distance(p0,p1)
 	{
-		// return mathUtils.getLength(p0,p1);
-
 		var pl = new Polyline({ "paths" : [[[p0.x,p0.y],[p1.x,p1.y]]], "spatialReference": map.spatialReference });
 		var pl_gc = webMercatorUtils.webMercatorToGeographic(pl);
 		var lengths = geodesicUtils.geodesicLengths([pl_gc], Units.METERS);
@@ -283,7 +359,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 			var nextPoint    = line.getPoint(0,i+1);
 			var currentDistance = distance(currentPoint,nextPoint);
 
-			console.log(currentDistance, distanceCovered, dist)
+			//console.log(currentDistance, distanceCovered, dist)
 
 			if( distanceCovered + currentDistance >= dist )
 			{
@@ -291,7 +367,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 				var x = currentPoint.x * (1-t) + nextPoint.x * t;
 				var y = currentPoint.y * (1-t) + nextPoint.y * t;
 
-				console.log('P',t,x,y);
+				// console.log('P',t,x,y);
 				return new Point(x,y,sr);
 			}
 			else
@@ -318,6 +394,103 @@ function(dom, array, Color, all, Deferred, number, lang,
 		runnersLayer.refresh();
 	}
 
+	function updateRunnerFeature(bib,distance,time)
+	{
+		console.log(bib,format_distance(distance),format_time(time));
+
+		// 1. find OBJECTID
+		var runner = _.find( runnersLayer.graphics, function(f) { return f.attributes.bib ==bib; } );
+		if( !runner)
+		{
+			var deferred = new Deferred();
+			deferred.reject('bib not found');
+			return deferred;
+		}
+		console.log( runner );
+
+		// 2. calculate new position
+		runner.attributes.total_distance_m = distance;
+		runner.attributes.total_time_s = time;
+		var position = estimateRunnerPosition(runner);
+
+		// 3. send updated feature to server
+		var url = runnersLayer.url + "/updateFeatures";
+		var features = [{ 
+				attributes: {
+					OBJECTID: runner.attributes.OBJECTID, 
+					bib: bib,
+					total_distance_m: distance,
+					total_time_s: time,
+					latest_timestamp: new Date()
+				},
+				geometry: position
+			}];
+		var params = {
+			f: 'json',
+			features: JSON.stringify(features)
+		}
+		var req = esri.request({
+			url: url,
+			content: params,
+			handleAs: 'json'
+		},
+		{
+			usePost: true
+		});
+
+		return req;
+	}
+
+	function play()
+	{
+		$('#play-button').addClass('btn-success');
+		$('#stop-button').removeClass('btn-success');
+
+		playing = true;
+	}
+
+	function stop()
+	{
+		$('#stop-button').addClass('btn-success');
+		$('#play-button').removeClass('btn-success');
+
+		playing = false;
+
+	}
+
+	function tick()
+	{
+		if( ! playing )
+			return;
+
+		console.log('tick()');
+
+		var runners = runnersLayer.graphics;
+		runners.forEach( function(runner)
+		{
+			// calculate current distance
+			var now = new Date();
+			var delta_s = (now - runner.attributes.latest_timestamp) / 1000;
+
+			if( delta_s > 40*60*60) // more than 40 min since last update
+			{
+
+			}
+			else
+			{
+				var distance = delta_s * (runner.attributes.total_distance_m / runner.attributes.total_time_s);
+				console.log('Updating',runner.attributes.name, delta_s, distance, format_time( calculate_pace(runner.attributes.total_time_s, runner.attributes.total_distance_m)));
+				runner.attributes.total_distance_m += distance;
+				runner.attributes.total_time_s += delta_s;
+				runner.attributes.latest_timestamp = now;
+				estimateRunnerPosition(runner);
+			}
+
+			console.log(delta_s);
+		});
+
+		zoomToFollowedRunners();
+	}
 
 	//
 	// main
@@ -375,6 +548,33 @@ function(dom, array, Color, all, Deferred, number, lang,
 		// refresh button
 		$('#refresh-button').on('click', refreshRunners);
 		$('#zoom-button').on('click', zoomToFollowedRunners);
+		$('#play-button').on('click', play);
+		$('#stop-button').on('click', stop);
+
+		/*
+		$('#satellite-button').on('click', function() { map.setBasemap('hybrid'); $('.basemap').removeClass('btn-success'); $(this).addClass('btn-success');});
+		$('#gray-button').on('click', function() { map.setBasemap('gray'); $('.basemap').removeClass('btn-success'); $(this).addClass('btn-success');});
+		*/
+
+		// update form
+		$('#bib-input').val(15073);
+		$('#distance-input').val(3);
+		$('#time-input').val('17:30');
+		$('form').on('submit', function(evt)
+		{
+			evt.preventDefault();
+			var bib      = $('#bib-input').val();
+			var distance = parse_distance( $('#distance-input').val() );
+			var time     = parse_time( $('#time-input').val() );
+			if( bib )
+			{				
+				updateRunnerFeature(bib,distance,time).then(refreshRunners);
+			}
+			return false;
+		});
+
+		play();
+		window.setInterval(tick, 2000);
 	});
 
 

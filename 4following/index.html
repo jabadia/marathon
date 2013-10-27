@@ -44,8 +44,29 @@
 				<input class="slider span6" type="text" value="" data-slider-min="0" data-slider-max="42" data-slider-step="1" data-slider-value="0" data-slider-orientation="horizontal" data-slider-selection="before" data-slider-tooltip="show">
 				-->
 				<h3>Options</h3>
-				<button class="btn" id="refresh-button"><i class="icon-refresh"></i> Refresh</button>
-				<button class="btn" id="zoom-button"><i class="icon-search"></i> Zoom</button>
+				<!-- <button class="btn" id="refresh-button"><i class="icon-refresh"></i> Refresh</button> -->
+				<!-- <button class="btn" id="zoom-button"><i class="icon-search"></i> Zoom</button> -->
+				<button class="btn btn-success" id="play-button"><i class="icon-play"></i> Play</button>
+				<button class="btn" id="stop-button"><i class="icon-stop"></i> Stop</button>
+<!-- 
+				<button class="btn basemap" id="satellite-button">Satellite</button>
+				<button class="btn basemap" id="gray-button">Map</button>
+ -->				
+				<h3>Update Runner</h3>
+				<form method="POST" class="form-inline">
+					<div>
+					<div class="input-prepend">
+					<label class="add-on" for="bib-input">Bib</label> <input type="text" id='bib-input' name='bib-input' class='input-small'>
+					</div>
+					<div class="input-prepend">
+					<label class="add-on" for="distance-input">Distance</label> <input type="text" placeholder="km" id='distance-input' name='distance-input' class='input-small'>
+					</div>
+					<div class="input-prepend">
+					<label class="add-on" for="time-input">Time</label> <input type="text" placeholder="hh:mm:ss" id='time-input' name='time-input' class='input-small'>
+					</div>
+					</div>
+					<button class='btn btn-primary'>Update</button>
+				</form>
 			</div>
 		</div>
 	</div>

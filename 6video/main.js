@@ -1,10 +1,89 @@
 "use strict";
 
+
+//
+// video
+//
+var ytplayer = null;
+
+function kmToSeconds(km)
+{
+	var sec = km / 42.192 * (21 * 60 + 44);
+	return sec;
+}
+
+function play()
+{
+	ytplayer.playVideo();
+	$('#play-button').addClass('btn-success');
+	$('#pause-button').removeClass('btn-success');
+}
+
+function pause()
+{
+	ytplayer.pauseVideo();
+	$('#pause-button').addClass('btn-success');
+	$('#play-button').removeClass('btn-success');
+}
+
+function advance(evt)
+{
+	var delta = parseInt( $(this).attr('data-delta') );
+	var sec = ytplayer.getCurrentTime();
+	ytplayer.seekTo(sec + delta);
+	ytplayer.pauseVideo();
+}
+
+function onYouTubePlayerReady(playerId)
+{
+	ytplayer = document.getElementById("myytplayer");
+	initVideo();
+}
+
+function initVideo()
+{
+	ytplayer.seekTo(0, true);
+	ytplayer.pauseVideo();
+	console.log(ytplayer);
+
+	$('#play-button').on('click', play);
+	$('#pause-button').on('click', pause);
+	// $('#go-button').on('click', function(evt)
+	// {
+	// 	var km = $('#seek-to-km').val();
+	// 	var sec = kmToSeconds(km);
+	// 	console.log(sec);
+	// 	ytplayer.seekTo(sec,true);
+	// 	console.log( ytplayer.getAvailablePlaybackRates());
+	// 	ytplayer.setPlaybackRate(0.2);
+	// 	play();
+	// });
+
+	$('.advance').on('click', advance);
+	$('#sync-button').on('click', sync);
+	$('#clear-button').on('clicl',clear);
+}
+
+function sync()
+{
+	var dist = $('#distance-field').val();
+	var sec = ytplayer.getCurrentTime();
+	$('#time-field').val(sec);
+
+	$('#sync-points').append('<li>' + dist + ',' + sec + '</li>');
+}
+
+function clear()
+{
+	$('#sync-points').empty();
+}
+
+
+
 var map;
 var operationalLayers;
 var runnersLayer;
 var pksLayer;
-var bookmarks;
 var marathonRoute;
 var playing;
 
@@ -49,6 +128,8 @@ function(dom, array, Color, all, Deferred, number, lang,
 	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils,
 	geodesicUtils, Units, mathUtils,
 	$) 
+{
+require(["bootstrap-slider.js"], function()
 {
 	//
 	// functions
@@ -186,86 +267,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 		map.addLayer(labels);
 	}
 
-	function createBookmarkButtons(bookmarks)
-	{
-		$('#bookmarks').empty();
-		bookmarks.forEach(function(bookmark)
-		{
-			//var icon = $('<i />').addClass('icon-search');
-			var newButton = $('<button />')
-				.addClass('btn')
-			//	.append(icon)
-				.append(" " + bookmark.name)
-				.on('click', function(evt)
-			{
-				$('#bookmarks button').removeClass('btn-primary');
-				$(this).addClass('btn-primary');
-				map.setExtent(new Extent(bookmark.extent));
-
-				// unfollow all
-				following = [];
-				$('#runners button').removeClass('btn-info');
-			});
-			$('#bookmarks').append(newButton);
-		});
-	}
-
-	function populateRunnersTable(runners)
-	{
-		$('#runners').empty();
-		var rows = [];
-		runners.forEach(function(runner)
-		{
-			console.log(runner);
-
-			var firstLetter = runner.attributes.name[0].toUpperCase();
-			if(firstLetter == "M") firstLetter = "M.";
-
-			var checkbox = $('<button />')
-				.addClass('btn')
-				.text('Follow')
-				.on('click', function(evt)
-				{
-					$(this).toggleClass('btn-info')
-					if($(this).hasClass('btn-info'))
-						addFollow(runner);
-					else
-						removeFollow(runner);
-
-					zoomToFollowedRunners();
-				})
-
-			var icon = $('<img />')
-				.attr('src', 'http://static.arcgis.com/images/Symbols/AtoZ/red'+ firstLetter +'.png')
-				.on('click', function(evt)
-				{
-					console.log(runner.attributes.name);
-					estimateRunnerPosition(runner);
-					map.centerAndZoom(runner.geometry, 16);
-					
-					// unfollow all
-					following = [];
-					$('#runners button').removeClass('btn-info');
-				});
-
-			var pace_s_km = calculate_pace(runner.attributes.total_time_s,runner.attributes.total_distance_m);
-
-			var row = $('<tr />')
-				.append( $('<td />').append(checkbox))
-				.append( $("<td />").append(icon) )
-				.append("<td>" + /*number.format(runner.attributes.bib,{places:0})*/ runner.attributes.bib  + "</td>")
-				.append("<td>" + runner.attributes.name + "</td>")
-				.append("<td>" + format_distance(runner.attributes.total_distance_m) + "</td>")
-				.append("<td>" + format_time(runner.attributes.total_time_s) + "</td>")
-				.append("<td>" + format_time(pace_s_km) + " per km.</td>")
-				.append("<td>" + format_period( new Date() - runner.attributes.latest_timestamp) + " ago</td>")
-			rows.push(row);
-		})
-		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace','Timestamp'].map(function(title){ return $('<th />').text(title); });
-		$('#runners').append($('<thead />').append($('<tr />').append(header_cells)));
-		$('#runners').append($('<tbody />').append(rows));
-	}
-
 	function replaceFeatureLayer(layer)
 	{
 		var index = map.graphicsLayerIds.indexOf(layer.id);
@@ -277,69 +278,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 		map.removeLayer(layer);
 		map.addLayer(newLayer,index);
 		return newLayer;
-	}
-
-	function setFlickerFree(layer)
-	{
-		var graphicsLayer = new GraphicsLayer({id: layer.id + '_temp', opacity:0.8});
-		map.addLayer(graphicsLayer);
-		layer.on('update-start',function(evt)
-		{
-			graphicsLayer.clear();
-			layer.graphics.forEach(function(g)
-			{
-				graphicsLayer.add(g.toJson());
-			});
-		});
-		layer.on('update-end',function(evt)
-		{
-			graphicsLayer.clear();
-		});		
-	}
-
-	//
-	// follow runners
-	//
-	var following = []
-	function addFollow(runner)
-	{
-		console.log(following);
-		if( following.indexOf(runner) == -1)
-			following.push(runner);
-		console.log(following);
-	}
-
-	function removeFollow(runner)
-	{
-		console.log(following);
-		following = _.without(following, runner);
-		console.log(following);
-	}
-
-	function zoomToFollowedRunners()
-	{
-		console.log(following);
-		if( following.length == 1 )
-		{
-			map.centerAndZoom(following[0].geometry, 16);
-		}
-		else if( following.length > 1)
-		{
-			var xmin = following[0].geometry.x;
-			var xmax = xmin;
-			var ymin = following[0].geometry.y;
-			var ymax = ymin;
-			following.forEach(function(runner)
-			{
-				xmin = Math.min( runner.geometry.x, xmin );
-				xmax = Math.max( runner.geometry.x, xmax );
-				ymin = Math.min( runner.geometry.y, ymin );
-				ymax = Math.max( runner.geometry.y, ymax );
-			});
-			var sr = map.spatialReference;
-			var extent = new Extent(xmin,ymin,xmax,ymax,sr);
-			map.setExtent(extent.expand(2));
-		}
 	}
 
 
@@ -406,104 +344,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 		runnersLayer.refresh();
 	}
 
-	function updateRunnerFeature(bib,distance,time)
-	{
-		console.log(bib,format_distance(distance),format_time(time));
-
-		// 1. find OBJECTID
-		var runner = _.find( runnersLayer.graphics, function(f) { return f.attributes.bib ==bib; } );
-		if( !runner)
-		{
-			var deferred = new Deferred();
-			deferred.reject('bib not found');
-			return deferred;
-		}
-		console.log( runner );
-
-		// 2. calculate new position
-		runner.attributes.total_distance_m = distance;
-		runner.attributes.total_time_s = time;
-		var position = estimateRunnerPosition(runner);
-
-		// 3. send updated feature to server
-		var url = runnersLayer.url + "/updateFeatures";
-		var features = [{ 
-				attributes: {
-					OBJECTID: runner.attributes.OBJECTID, 
-					bib: bib,
-					total_distance_m: distance,
-					total_time_s: time,
-					latest_timestamp: new Date()
-				},
-				geometry: position
-			}];
-		var params = {
-			f: 'json',
-			features: JSON.stringify(features)
-		}
-		var req = esri.request({
-			url: url,
-			content: params,
-			handleAs: 'json'
-		},
-		{
-			usePost: true
-		});
-
-		return req;
-	}
-
-	function play()
-	{
-		$('#play-button').addClass('btn-success');
-		$('#stop-button').removeClass('btn-success');
-
-		playing = true;
-	}
-
-	function stop()
-	{
-		$('#stop-button').addClass('btn-success');
-		$('#play-button').removeClass('btn-success');
-
-		playing = false;
-
-	}
-
-	function tick()
-	{
-		if( ! playing )
-			return;
-
-		console.log('tick()');
-
-		var runners = runnersLayer.graphics;
-		runners.forEach( function(runner)
-		{
-			// calculate current distance
-			var now = new Date();
-			var delta_s = (now - runner.attributes.latest_timestamp) / 1000;
-
-			if( delta_s > 40*60*60) // more than 40 min since last update
-			{
-
-			}
-			else
-			{
-				var distance = delta_s * (runner.attributes.total_distance_m / runner.attributes.total_time_s);
-				console.log('Updating',runner.attributes.name, delta_s, distance, format_time( calculate_pace(runner.attributes.total_time_s, runner.attributes.total_distance_m)));
-				runner.attributes.total_distance_m += distance;
-				runner.attributes.total_time_s += delta_s;
-				runner.attributes.latest_timestamp = now;
-				estimateRunnerPosition(runner);
-			}
-
-			console.log(delta_s);
-		});
-
-		zoomToFollowedRunners();
-	}
-
 	//
 	// main
 	//
@@ -519,15 +359,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 
 		// runners
 		runnersLayer = map.getLayer( getLayer("runners").id );
-		runnersLayer = replaceFeatureLayer( runnersLayer );
-		runnersLayer.on('update-end',function(evt)
-		{
-			var runners = runnersLayer.graphics;
-			populateRunnersTable(runners);
-			updateAllRunnerPositions(runners);
-			zoomToFollowedRunners();
-		});
-
+		runnersLayer.hide();
 
 		// route
 		var routeLayer = replaceFeatureLayer( map.getLayer( getLayer("NYC - Route").id ) );
@@ -540,8 +372,28 @@ function(dom, array, Color, all, Deferred, number, lang,
 		pksLayer = map.getLayer( getLayer("NYC - PKs").id );
 		initLabels(pksLayer);
 
+		var markerSymbol = new SimpleMarkerSymbol();
+		markerSymbol.setPath("M16,3.5c-4.142,0-7.5,3.358-7.5,7.5c0,4.143,7.5,18.121,7.5,18.121S23.5,15.143,23.5,11C23.5,6.858,20.143,3.5,16,3.5z M16,14.584c-1.979,0-3.584-1.604-3.584-3.584S14.021,7.416,16,7.416S19.584,9.021,19.584,11S17.979,14.584,16,14.584z");
+		markerSymbol.setOffset(0,15);
+		markerSymbol.setColor(new Color("#3498db"));
 
+		var slider = $('.slider').slider()
+			.on('slide', function(evt)
+			{
+				var dist = slider.getValue() * 100;
+				var pos = getPointAlongLine(marathonRoute, dist);
+				map.graphics.clear();
+				map.graphics.add( new Graphic(pos,markerSymbol));
+				map.centerAt(pos);
+
+				$('#distance-field').val( dist );
+
+				var sec = ytplayer.getCurrentTime();
+				$('#time-field').val(sec);
+			})
+			.data('slider');
 	});
 
 
+})
 });

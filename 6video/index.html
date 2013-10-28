@@ -6,6 +6,8 @@
 	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+
     <script src="dojoConfig.js"></script>
 
 	<!-- esri -->
@@ -13,6 +15,7 @@
 	<script src="http://jsdev.arcgis.com/3.7/"></script>
 
 	<script src="main.js"></script>
+	<link rel="stylesheet" href="slider.css">
 </head>
 <body>
 
@@ -37,75 +40,38 @@
 			</div>
 
 			<div>
-				<div>
 				<button class="btn" id="play-button"><i class="icon-play"></i> Play</button>
 				<button class="btn btn-success" id="pause-button"><i class="icon-pause"></i> Pause</button>
-				</div>
-				<div>
-				<input type="text" id="seek-to-km">
-				<button class="btn btn-primary" id="go-button">Go</button>
-				</div>
-				<div>
-				<input type="text" id="current-time">
-				<button class="btn btn-primary" id="get-current-time-button">Get</button>
-				</div>
+				<button class="btn advance" data-delta="-60">-60</button>
+				<button class="btn advance" data-delta="-30">-30</button>
+				<button class="btn advance" data-delta="-5">-5</button>
+				<button class="btn advance" data-delta="-1">-1</button>
+				<button class="btn advance" data-delta="+1">+1</button>
+				<button class="btn advance" data-delta="+5">+5</button>
+				<button class="btn advance" data-delta="+30">+30</button>
+				<button class="btn advance" data-delta="+60">+60</button>
 			</div>
 
 		</div>
 		<div class="span6">
 			<div id="map"></div>
+			<input class="slider span6" type="text" value="0" data-slider-min="0" data-slider-max="420" data-slider-step="1" data-slider-value="0" data-slider-orientation="horizontal" data-slider-selection="before" data-slider-tooltip="show">
+		</div>
+	</div>
+	<div class="row">
+		<div class="span6">
+			<input class="span2" type="text" id="time-field">
+			<input class="span2"  type="text" id="distance-field">
+			<button class="btn btn-primary" id="sync-button">Sync</button>
+			<button class="btn btn-primary" id="sync-button">Clear</button>
+			<ul id="sync-points">
+				
+			</ul>
 		</div>
 	</div>
 	</div>
 	<script>
 
-		var ytplayer = null;
-
-		function kmToSeconds(km)
-		{
-			var sec = km / 42.192 * (21 * 60 + 44);
-			return sec;
-		}
-
-		function play()
-		{
-			ytplayer.playVideo();
-			$('#play-button').addClass('btn-success');
-			$('#pause-button').removeClass('btn-success');
-		}
-
-		function pause()
-		{
-			ytplayer.pauseVideo();
-			$('#pause-button').addClass('btn-success');
-			$('#play-button').removeClass('btn-success');
-		}
-
-		function onYouTubePlayerReady(playerId)
-		{
-			ytplayer = document.getElementById("myytplayer");
-			ytplayer.seekTo(0, true);
-			ytplayer.pauseVideo();
-			console.log(ytplayer);
-
-			$('#play-button').on('click', play);
-			$('#pause-button').on('click', pause);
-			$('#go-button').on('click', function(evt)
-			{
-				var km = $('#seek-to-km').val();
-				var sec = kmToSeconds(km);
-				console.log(sec);
-				ytplayer.seekTo(sec,true);
-				console.log( ytplayer.getAvailablePlaybackRates());
-				ytplayer.setPlaybackRate(0.2);
-				play();
-			});
-			$('#get-current-time-button').on('click',function(evt)
-			{
-				var sec = ytplayer.getCurrentTime();
-				$('#current-time').val(sec);
-			});
-		}
 
 	</script>
 

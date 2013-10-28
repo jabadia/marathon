@@ -134,7 +134,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 				if( isNaN(mins) || isNaN(secs) )
 					throw new Error('bad value');
 
-				if( hours == 0 && mins < 5) // se asume que 1:15 es 1h y 15min, en lugar de 1min y 15sec
+				if( hours == 0 && mins < 4) // se asume que 1:15 es 1h y 15min, en lugar de 1min y 15sec
 				{
 					hours = mins;
 					mins = secs;
@@ -522,6 +522,8 @@ function(dom, array, Color, all, Deferred, number, lang,
 		runnersLayer.on('update-end',function(evt)
 		{
 			var runners = runnersLayer.graphics;
+			// keep following runners...
+			following = [];
 			populateRunnersTable(runners);
 			updateAllRunnerPositions(runners);
 			zoomToFollowedRunners();

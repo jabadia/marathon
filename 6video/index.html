@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Video</title>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+</head>
+<body>
+
+<script type="text/javascript" src="swfobject.js"></script>    
+	<div id="ytapiplayer">
+	You need Flash player 8+ and JavaScript enabled to view this video.
+	</div>
+
+	<div>  	
+		<script type="text/javascript">
+
+		var params = { allowScriptAccess: "always" };
+		var atts = { id: "myytplayer" };
+		swfobject.embedSWF("http://www.youtube.com/v/RPAoFRH0FAI?enablejsapi=1&playerapiid=ytplayer&version=3",
+		                   "ytapiplayer", "640", "360", "8", null, null, params, atts);
+
+		</script>
+	</div>
+
+	<div>
+		<button class="btn" id="play-button"><i class="icon-play"></i> Play</button>
+		<button class="btn btn-success" id="pause-button"><i class="icon-pause"></i> Pause</button>
+		<input type="text" id="seek-to-km">
+		<button class="btn btn-primary" id="go-button">Go</button>
+		<input type="text" id="current-time">
+		<button class="btn btn-primary" id="get-current-time-button">Get</button>
+	</div>
+
+	<script>
+
+		var ytplayer = null;
+
+		function kmToSeconds(km)
+		{
+			var sec = km / 42.192 * (21 * 60 + 44);
+			return sec;
+		}
+
+		function play()
+		{
+			ytplayer.playVideo();
+			$('#play-button').addClass('btn-success');
+			$('#pause-button').removeClass('btn-success');
+		}
+
+		function pause()
+		{
+			ytplayer.pauseVideo();
+			$('#pause-button').addClass('btn-success');
+			$('#play-button').removeClass('btn-success');
+		}
+
+		function onYouTubePlayerReady(playerId)
+		{
+			ytplayer = document.getElementById("myytplayer");
+			ytplayer.seekTo(0, true);
+			ytplayer.pauseVideo();
+			console.log(ytplayer);
+
+			$('#play-button').on('click', play);
+			$('#pause-button').on('click', pause);
+			$('#go-button').on('click', function(evt)
+			{
+				var km = $('#seek-to-km').val();
+				var sec = kmToSeconds(km);
+				console.log(sec);
+				ytplayer.seekTo(sec,true);
+				console.log( ytplayer.getAvailablePlaybackRates());
+				ytplayer.setPlaybackRate(0.2);
+				play();
+			});
+			$('#get-current-time-button').on('click',function(evt)
+			{
+				var sec = ytplayer.getCurrentTime();
+				$('#current-time').val(sec);
+			});
+		}
+
+	</script>
+
+</body>
+</html>

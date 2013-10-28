@@ -85,7 +85,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 	{
 		var seconds = t / 1000;
 		if( seconds < 60 )
-			return seconds + " s";
+			return Math.floor(seconds) + " sec";
 		else if( seconds < 3600 )
 			return Math.floor(seconds / 60) + " min";
 		else

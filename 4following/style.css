@@ -33,3 +33,8 @@ img
 {
 	background-color: blue;
 }
+
+#update-runner-block
+{
+	display: none;
+}

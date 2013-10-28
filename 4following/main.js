@@ -81,6 +81,17 @@ function(dom, array, Color, all, Deferred, number, lang,
 		return result;
 	}
 
+	function format_period(t)
+	{
+		var seconds = t / 1000;
+		if( seconds < 60 )
+			return seconds + " s";
+		else if( seconds < 3600 )
+			return Math.floor(seconds / 60) + " min";
+		else
+			return Math.floor(seconds / 3600) + " hours";
+	}
+
 	function calculate_pace(t_s,d_m)
 	{
 		if( !d_m )
@@ -242,14 +253,15 @@ function(dom, array, Color, all, Deferred, number, lang,
 			var row = $('<tr />')
 				.append( $('<td />').append(checkbox))
 				.append( $("<td />").append(icon) )
-				.append("<td>" + number.format(runner.attributes.bib,{places:0})  + "</td>")
+				.append("<td>" + /*number.format(runner.attributes.bib,{places:0})*/ runner.attributes.bib  + "</td>")
 				.append("<td>" + runner.attributes.name + "</td>")
 				.append("<td>" + format_distance(runner.attributes.total_distance_m) + "</td>")
 				.append("<td>" + format_time(runner.attributes.total_time_s) + "</td>")
 				.append("<td>" + format_time(pace_s_km) + " per km.</td>")
+				.append("<td>" + format_period( new Date() - runner.attributes.latest_timestamp) + " ago</td>")
 			rows.push(row);
 		})
-		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace',''].map(function(title){ return $('<th />').text(title); });
+		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace','Timestamp'].map(function(title){ return $('<th />').text(title); });
 		$('#runners').append($('<thead />').append($('<tr />').append(header_cells)));
 		$('#runners').append($('<tbody />').append(rows));
 	}
@@ -559,6 +571,8 @@ function(dom, array, Color, all, Deferred, number, lang,
 		*/
 
 		// update form
+		//
+		$('#update-runner-block').show();
 		$('#bib-input').val(15073);
 		$('#distance-input').val(3);
 		$('#time-input').val('17:30');

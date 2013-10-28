@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Video</title>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+
+    <script src="dojoConfig.js"></script>
+
+	<!-- esri -->
+	<link rel="stylesheet" href="http://js.arcgis.com/3.7/js/esri/css/esri.css">
+	<script src="http://jsdev.arcgis.com/3.7/"></script>
+
+	<script src="main.js"></script>
+	<link rel="stylesheet" href="slider.css">
+</head>
+<body>
+
+	<div class="container">
+	<div class="row">
+		<div class="span6">
+
+			<script type="text/javascript" src="swfobject.js"></script>    
+			<div id="ytapiplayer">
+			You need Flash player 8+ and JavaScript enabled to view this video.
+			</div>
+
+			<div>  	
+				<script type="text/javascript">
+
+				var params = { allowScriptAccess: "always" };
+				var atts = { id: "myytplayer" };
+				swfobject.embedSWF("http://www.youtube.com/v/RPAoFRH0FAI?enablejsapi=1&playerapiid=ytplayer&version=3",
+				                   "ytapiplayer", "570", "320", "8", null, null, params, atts);
+
+				</script>
+			</div>
+
+			<div>
+				<button class="btn" id="play-button"><i class="icon-play"></i> Play</button>
+				<button class="btn btn-success" id="pause-button"><i class="icon-pause"></i> Pause</button>
+				<button class="btn advance" data-delta="-60">-60</button>
+				<button class="btn advance" data-delta="-30">-30</button>
+				<button class="btn advance" data-delta="-5">-5</button>
+				<button class="btn advance" data-delta="-1">-1</button>
+				<button class="btn advance" data-delta="+1">+1</button>
+				<button class="btn advance" data-delta="+5">+5</button>
+				<button class="btn advance" data-delta="+30">+30</button>
+				<button class="btn advance" data-delta="+60">+60</button>
+			</div>
+
+		</div>
+		<div class="span6">
+			<div id="map"></div>
+			<input class="slider span6" type="text" value="0" data-slider-min="0" data-slider-max="420" data-slider-step="1" data-slider-value="0" data-slider-orientation="horizontal" data-slider-selection="before" data-slider-tooltip="show">
+		</div>
+	</div>
+	<div class="row">
+		<div class="span6">
+			<input class="span2" type="text" id="time-field">
+			<input class="span2"  type="text" id="distance-field">
+			<button class="btn btn-primary" id="sync-button">Sync</button>
+			<button class="btn btn-primary" id="sync-button">Clear</button>
+			<ul id="sync-points">
+				
+			</ul>
+		</div>
+	</div>
+	</div>
+	<script>
+
+
+	</script>
+
+</body>
+</html>

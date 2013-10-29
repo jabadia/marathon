@@ -391,7 +391,7 @@ require(["bootstrap-slider.js"], function()
 				map.graphics.clear();
 				map.graphics.add( new Graphic(pos,markerSymbol));
 				var centerPos = new Point(
-					pos.x + map.extent.getWidth() * 0.10, 
+					pos.x + map.extent.getWidth() * 0.20, 
 					pos.y - map.extent.getHeight() * 0.10, pos.spatialReference);
 				map.centerAt(centerPos);
 

@@ -11,37 +11,43 @@ function lerp(p0,p1,x)
 	return ( (x-p0[0]) / (p1[0]-p0[0]) * (p1[1]-p0[1]) ) + p0[1];
 }
 
+function lerp2(p0,p1,x)
+{
+	return ( (x-p0[1]) / (p1[1]-p0[1]) * (p1[0]-p0[0]) ) + p0[0];
+}
+
+var distance_time_points = [
+	[0,0],
+	[3200,74.548],
+	[3900,87.858],
+	[6000,143.291],
+	[10100,242.41],
+	[12600,305.682],
+	[14900,378.506],
+	[16200,421.349],
+	[17100,450.359],
+	[19500,527.728],
+	[20300,558],
+	[20500,565.173],
+	[21500,601.335],
+	[22300,625.827],
+	[24400,677.659],
+	[26500,748.718],
+	[31900,910.574],
+	[32600,929.127],
+	[34000,984.52],
+	[35300,1023.757],
+	[36000,1048.75],
+	[36800,1073.179],
+	[38000,1132.554],
+	[41100,1254.931],
+	[41900,1284.225],
+	[42190,1303.538]
+];
+
+
 function metersToSeconds(m)
 {
-	var distance_time_points = [
-		[0,0],
-		[3200,74.548],
-		[3900,87.858],
-		[6000,143.291],
-		[10100,242.41],
-		[12600,305.682],
-		[14900,378.506],
-		[16200,421.349],
-		[17100,450.359],
-		[19500,527.728],
-		[20300,558],
-		[20500,565.173],
-		[21500,601.335],
-		[22300,625.827],
-		[24400,677.659],
-		[26500,748.718],
-		[31900,910.574],
-		[32600,929.127],
-		[34000,984.52],
-		[35300,1023.757],
-		[36000,1048.75],
-		[36800,1073.179],
-		[38000,1132.554],
-		[41100,1254.931],
-		[41900,1284.225],
-		[42190,1303.538]
-	];
-
 	var i=0;
 
 	while( distance_time_points[i][0] < m && i<distance_time_points.length)
@@ -51,6 +57,19 @@ function metersToSeconds(m)
 		return distance_time_points[i-1][1];
 
 	return lerp( distance_time_points[i], distance_time_points[i+1], m);
+}
+
+function secToMeters(s)
+{
+	var i=0;
+
+	while( distance_time_points[i][1] < s && i<distance_time_points.length)
+		++i;
+
+	if( i== distance_time_points.length )
+		return distance_time_points[i-1][0];
+
+	return lerp2( distance_time_points[i], distance_time_points[i+1], s);
 }
 
 function play()
@@ -83,7 +102,17 @@ function initVideo()
 	$('#pause-button').on('click', pause);
 }
 
+function tick()
+{
+	if( ytplayer.getPlayerState() == 1 /* playing */)
+	{
+		var sec = ytplayer.getCurrentTime();
+		var dist = secToMeters(sec);
 
+		// falta actualizar el slider
+		console.log(dist);		
+	}
+}
 
 var map;
 var operationalLayers;
@@ -403,6 +432,8 @@ require(["bootstrap-slider.js"], function()
 				pause();
 			})
 			.data('slider');
+
+		window.setInterval(tick,1000);
 	});
 
 

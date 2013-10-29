@@ -16,13 +16,19 @@
 
 	<script src="main.js"></script>
 	<link rel="stylesheet" href="slider.css">
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-	<div class="container">
-	<div class="row">
-		<div class="span6">
+	<div class="title">
+		<div class="main">ING NYC Marathon</div>
+		Drag slider to move runner along Marathon route
+	</div>
 
+	<div class="video-overlay">
+		<div class="vv">
+
+			<!-- video player -->
 			<script type="text/javascript" src="swfobject.js"></script>    
 			<div id="ytapiplayer">
 			You need Flash player 8+ and JavaScript enabled to view this video.
@@ -33,15 +39,21 @@
 
 				var params = { allowScriptAccess: "always" };
 				var atts = { id: "myytplayer" };
-				swfobject.embedSWF("http://www.youtube.com/v/RPAoFRH0FAI?enablejsapi=1&playerapiid=ytplayer&version=3",
-				                   "ytapiplayer", "640", "360", "8", null, null, params, atts);
+				swfobject.embedSWF("http://www.youtube.com/v/RPAoFRH0FAI?enablejsapi=1&playerapiid=ytplayer&version=3&controls=0&showinfo=0",
+				                   //"ytapiplayer", "640", "360", "8", null, null, params, atts);
+									"ytapiplayer", "530", "299", "8", null, null, params, atts);
 
 				</script>
 			</div>
 
-			<div>
+			<!-- controls -->
+			<div class="controls form-horizontal">
 				<button class="btn" id="play-button"><i class="icon-play"></i> Play</button>
 				<button class="btn btn-success" id="pause-button"><i class="icon-pause"></i> Pause</button>
+				<div class="input-prepend">
+					<label class="add-on" for="distance-input">Distance</label><input type="text" id="distance-field">
+				</div>
+				<!--
 				<button class="btn advance" data-delta="-60">-60</button>
 				<button class="btn advance" data-delta="-30">-30</button>
 				<button class="btn advance" data-delta="-5">-5</button>
@@ -50,30 +62,13 @@
 				<button class="btn advance" data-delta="+5">+5</button>
 				<button class="btn advance" data-delta="+30">+30</button>
 				<button class="btn advance" data-delta="+60">+60</button>
-			</div>
-
+				-->
+				<input class="slider" type="text" value="0" data-slider-min="0" data-slider-max="425" data-slider-step="1" data-slider-value="0" data-slider-orientation="horizontal" data-slider-selection="before" data-slider-tooltip="hide">
+			</div> <!-- controls -->
 		</div>
-		<div class="span6">
-			<div id="map"></div>
-			<input class="slider span6" type="text" value="0" data-slider-min="0" data-slider-max="420" data-slider-step="1" data-slider-value="0" data-slider-orientation="horizontal" data-slider-selection="before" data-slider-tooltip="show">
-		</div>
-	</div>
-	<div class="row">
-		<div class="span6">
-			<input class="span2" type="text" id="time-field">
-			<input class="span2"  type="text" id="distance-field">
-			<button class="btn btn-primary" id="sync-button">Sync</button>
-			<button class="btn btn-primary" id="sync-button">Clear</button>
-			<ul id="sync-points">
-				
-			</ul>
-		</div>
-	</div>
-	</div>
-	<script>
+	</div> <!-- video-overlay -->
 
-
-	</script>
+	<div id="map"></div>	
 
 </body>
 </html>

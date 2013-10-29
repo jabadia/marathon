@@ -6,10 +6,51 @@
 //
 var ytplayer = null;
 
-function kmToSeconds(km)
+function lerp(p0,p1,x)
 {
-	var sec = km / 42.192 * (21 * 60 + 44);
-	return sec;
+	return ( (x-p0[0]) / (p1[0]-p0[0]) * (p1[1]-p0[1]) ) + p0[1];
+}
+
+function metersToSeconds(m)
+{
+	var distance_time_points = [
+		[0,0],
+		[3200,74.548],
+		[3900,87.858],
+		[6000,143.291],
+		[10100,242.41],
+		[12600,305.682],
+		[14900,378.506],
+		[16200,421.349],
+		[17100,450.359],
+		[19500,527.728],
+		[20300,558],
+		[20500,565.173],
+		[21500,601.335],
+		[22300,625.827],
+		[24400,677.659],
+		[26500,748.718],
+		[31900,910.574],
+		[32600,929.127],
+		[34000,984.52],
+		[35300,1023.757],
+		[36000,1048.75],
+		[36800,1073.179],
+		[38000,1132.554],
+		[41100,1254.931],
+		[41900,1284.225],
+		[42190,1303.538]
+	];
+
+	var i=0;
+
+	while( distance_time_points[i][0] < m && i<distance_time_points.length)
+		++i;
+
+	if( i== distance_time_points.length )
+		return distance_time_points[i-1][1];
+
+	return lerp( distance_time_points[i], distance_time_points[i+1], m);
 }
 
 function play()
@@ -26,14 +67,6 @@ function pause()
 	$('#play-button').removeClass('btn-success');
 }
 
-function advance(evt)
-{
-	var delta = parseInt( $(this).attr('data-delta') );
-	var sec = ytplayer.getCurrentTime();
-	ytplayer.seekTo(sec + delta);
-	ytplayer.pauseVideo();
-}
-
 function onYouTubePlayerReady(playerId)
 {
 	ytplayer = document.getElementById("myytplayer");
@@ -48,34 +81,6 @@ function initVideo()
 
 	$('#play-button').on('click', play);
 	$('#pause-button').on('click', pause);
-	// $('#go-button').on('click', function(evt)
-	// {
-	// 	var km = $('#seek-to-km').val();
-	// 	var sec = kmToSeconds(km);
-	// 	console.log(sec);
-	// 	ytplayer.seekTo(sec,true);
-	// 	console.log( ytplayer.getAvailablePlaybackRates());
-	// 	ytplayer.setPlaybackRate(0.2);
-	// 	play();
-	// });
-
-	$('.advance').on('click', advance);
-	$('#sync-button').on('click', sync);
-	$('#clear-button').on('clicl',clear);
-}
-
-function sync()
-{
-	var dist = $('#distance-field').val();
-	var sec = ytplayer.getCurrentTime();
-	$('#time-field').val(sec);
-
-	$('#sync-points').append('<li>' + dist + ',' + sec + '</li>');
-}
-
-function clear()
-{
-	$('#sync-points').empty();
 }
 
 
@@ -374,8 +379,9 @@ require(["bootstrap-slider.js"], function()
 
 		var markerSymbol = new SimpleMarkerSymbol();
 		markerSymbol.setPath("M16,3.5c-4.142,0-7.5,3.358-7.5,7.5c0,4.143,7.5,18.121,7.5,18.121S23.5,15.143,23.5,11C23.5,6.858,20.143,3.5,16,3.5z M16,14.584c-1.979,0-3.584-1.604-3.584-3.584S14.021,7.416,16,7.416S19.584,9.021,19.584,11S17.979,14.584,16,14.584z");
-		markerSymbol.setOffset(0,15);
-		markerSymbol.setColor(new Color("#3498db"));
+		markerSymbol.setOffset(0,18);
+		markerSymbol.setSize(35);
+		markerSymbol.setColor(new Color("#FFFF33"));
 
 		var slider = $('.slider').slider()
 			.on('slide', function(evt)
@@ -384,12 +390,17 @@ require(["bootstrap-slider.js"], function()
 				var pos = getPointAlongLine(marathonRoute, dist);
 				map.graphics.clear();
 				map.graphics.add( new Graphic(pos,markerSymbol));
-				map.centerAt(pos);
+				var centerPos = new Point(
+					pos.x + map.extent.getWidth() * 0.10, 
+					pos.y - map.extent.getHeight() * 0.10, pos.spatialReference);
+				map.centerAt(centerPos);
 
-				$('#distance-field').val( dist );
+				$('#distance-field').val( format_distance( dist ) );
 
-				var sec = ytplayer.getCurrentTime();
-				$('#time-field').val(sec);
+				var sec = metersToSeconds(dist);
+				console.log(dist,sec);
+				ytplayer.seekTo(sec,true);
+				pause();
 			})
 			.data('slider');
 	});

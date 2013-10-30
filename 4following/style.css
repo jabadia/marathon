@@ -5,6 +5,12 @@
 	height: 400px;
 }
 
+@media (min-height:800px) {
+	#map{
+		height: 550px;
+	}
+}
+
 #map[data-loaded]
 {
 	opacity: 1.0;

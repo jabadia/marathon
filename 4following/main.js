@@ -38,6 +38,7 @@ require(["dojo/dom",
 	"esri/renderers/SimpleRenderer",
 	"esri/request",
 	"esri/arcgis/utils",
+	"esri/urlUtils",
 
 	"esri/geometry/geodesicUtils", "esri/units", "esri/geometry/mathUtils",
 
@@ -46,7 +47,7 @@ require(["dojo/dom",
 ], 
 function(dom, array, Color, all, Deferred, number, lang,
 	domUtils, Map, Graphic, Geometry, Point, Polyline, webMercatorUtils, GeometryService, FeatureSet, RelationParameters, LabelLayer, Extent, Query, FeatureLayer,
-	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils,
+	SimpleLineSymbol, SimpleMarkerSymbol, SimpleFillSymbol, TextSymbol, SimpleRenderer, esriRequest, arcgisUtils, urlUtils,
 	geodesicUtils, Units, mathUtils,
 	$) 
 {
@@ -210,6 +211,16 @@ function(dom, array, Color, all, Deferred, number, lang,
 		});
 	}
 
+	function populateRunnersSelect(runners)
+	{
+		$('#bib-input').empty();
+		runners.forEach(function(runner)
+		{
+			var bib = runner.attributes.bib;
+			$('#bib-input').append('<option>' + bib + '</option>');
+		});
+	}
+
 	function populateRunnersTable(runners)
 	{
 		$('#runners').empty();
@@ -258,8 +269,9 @@ function(dom, array, Color, all, Deferred, number, lang,
 				.append("<td>" + format_distance(runner.attributes.total_distance_m) + "</td>")
 				.append("<td>" + format_time(runner.attributes.total_time_s) + "</td>")
 				.append("<td>" + format_time(pace_s_km) + " per km.</td>")
-				.append("<td>" + format_period( new Date() - runner.attributes.latest_timestamp) + " ago</td>")
+				.append("<td>" + (runner.attributes.latest_timestamp? (format_period( new Date() - runner.attributes.latest_timestamp) + " ago") : "-") + "</td>")
 			rows.push(row);
+			console.log("latest_timestamp", runner.attributes.latest_timestamp);
 		})
 		var header_cells = ['Follow','Go to','Bib','Name','Distance','Time','Pace','Timestamp'].map(function(title){ return $('<th />').text(title); });
 		$('#runners').append($('<thead />').append($('<tr />').append(header_cells)));
@@ -318,7 +330,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 
 	function zoomToFollowedRunners()
 	{
-		console.log(following);
 		if( following.length == 1 )
 		{
 			map.centerAndZoom(following[0].geometry, 16);
@@ -410,6 +421,8 @@ function(dom, array, Color, all, Deferred, number, lang,
 	{
 		console.log(bib,format_distance(distance),format_time(time));
 
+		var timestamp = (distance && time)? new Date() : null;
+
 		// 1. find OBJECTID
 		var runner = _.find( runnersLayer.graphics, function(f) { return f.attributes.bib ==bib; } );
 		if( !runner)
@@ -433,7 +446,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 					bib: bib,
 					total_distance_m: distance,
 					total_time_s: time,
-					latest_timestamp: new Date()
+					latest_timestamp: timestamp
 				},
 				geometry: position
 			}];
@@ -475,8 +488,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 		if( ! playing )
 			return;
 
-		console.log('tick()');
-
 		var runners = runnersLayer.graphics;
 		runners.forEach( function(runner)
 		{
@@ -497,8 +508,6 @@ function(dom, array, Color, all, Deferred, number, lang,
 				runner.attributes.latest_timestamp = now;
 				estimateRunnerPosition(runner);
 			}
-
-			console.log(delta_s);
 		});
 
 		zoomToFollowedRunners();
@@ -537,6 +546,7 @@ function(dom, array, Color, all, Deferred, number, lang,
 			// keep following runners...
 			following = [];
 			populateRunnersTable(runners);
+			populateRunnersSelect(runners);
 			updateAllRunnerPositions(runners);
 			zoomToFollowedRunners();
 		});
@@ -572,13 +582,19 @@ function(dom, array, Color, all, Deferred, number, lang,
 
 		// update form
 		//
-		$('#update-runner-block').show();
+		var urlParams = urlUtils.urlToObject(document.URL);
+		if( urlParams.query && urlParams.query.update )
+			$('#update-runner-block').show();
+		else
+			$('#update-runner-block').hide();
+
+		/*
 		$('#bib-input').val(15073);
 		$('#distance-input').val(3);
 		$('#time-input').val('17:30');
-		$('form').on('submit', function(evt)
+		*/
+		$('#update-button').on('click', function(evt)
 		{
-			evt.preventDefault();
 			var bib      = $('#bib-input').val();
 			var distance = parse_distance( $('#distance-input').val() );
 			var time     = parse_time( $('#time-input').val() );
@@ -586,7 +602,14 @@ function(dom, array, Color, all, Deferred, number, lang,
 			{				
 				updateRunnerFeature(bib,distance,time).then(refreshRunners);
 			}
-			return false;
+		});
+		$('#reset-button').on('click',function(evt)
+		{
+			var bib = $('#bib-input').val();
+			if( bib )
+			{				
+				updateRunnerFeature(bib,null,null).then(refreshRunners);
+			}
 		});
 
 		play();

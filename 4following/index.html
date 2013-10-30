@@ -54,10 +54,17 @@
  -->				
  				<div id="update-runner-block">
 				<h3>Update Runner</h3>
-				<form method="POST" class="form-inline">
+				<div class="form-inline">
 					<div>
+					<!--
 					<div class="input-prepend">
 					<label class="add-on" for="bib-input">Bib</label> <input type="text" id='bib-input' name='bib-input' class='input-small'>
+					</div>
+					-->
+					<div class="input-prepend">
+					<label class="add-on" for="bib-input">Bib</label>
+					<select name="bib-input" id="bib-input" class='input-small'>
+					</select>
 					</div>
 					<div class="input-prepend">
 					<label class="add-on" for="distance-input">Distance</label> <input type="text" placeholder="km" id='distance-input' name='distance-input' class='input-small'>
@@ -66,8 +73,9 @@
 					<label class="add-on" for="time-input">Time</label> <input type="text" placeholder="hh:mm:ss" id='time-input' name='time-input' class='input-small'>
 					</div>
 					</div>
-					<button class='btn btn-primary'>Update</button>
-				</form>
+					<button class='btn btn-primary' id="update-button">Update</button>
+					<button class='btn bnt-danger' id="reset-button">Reset</button>
+				</div> <!-- form-inline -->
 				</div>
 			</div>
 		</div>

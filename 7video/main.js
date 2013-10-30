@@ -48,7 +48,7 @@ var distance_time_points = [
 
 function metersToSeconds(m)
 {
-	var i=0;
+	var i=1;
 
 	while( distance_time_points[i][0] < m && i<distance_time_points.length)
 		++i;
@@ -56,12 +56,12 @@ function metersToSeconds(m)
 	if( i== distance_time_points.length )
 		return distance_time_points[i-1][1];
 
-	return lerp( distance_time_points[i], distance_time_points[i+1], m);
+	return lerp( distance_time_points[i-1], distance_time_points[i], m);
 }
 
 function secToMeters(s)
 {
-	var i=0;
+	var i=1;
 
 	while( distance_time_points[i][1] < s && i<distance_time_points.length)
 		++i;
@@ -69,7 +69,7 @@ function secToMeters(s)
 	if( i== distance_time_points.length )
 		return distance_time_points[i-1][0];
 
-	return lerp2( distance_time_points[i], distance_time_points[i+1], s);
+	return lerp2( distance_time_points[i-1], distance_time_points[i], s);
 }
 
 function play()
@@ -95,23 +95,11 @@ function onYouTubePlayerReady(playerId)
 function initVideo()
 {
 	ytplayer.seekTo(0, true);
-	ytplayer.pauseVideo();
+	play();
 	console.log(ytplayer);
 
 	$('#play-button').on('click', play);
 	$('#pause-button').on('click', pause);
-}
-
-function tick()
-{
-	if( ytplayer.getPlayerState() == 1 /* playing */)
-	{
-		var sec = ytplayer.getCurrentTime();
-		var dist = secToMeters(sec);
-
-		// falta actualizar el slider
-		console.log(dist);		
-	}
 }
 
 var map;
@@ -378,6 +366,7 @@ require(["bootstrap-slider.js"], function()
 		runnersLayer.refresh();
 	}
 
+
 	//
 	// main
 	//
@@ -433,6 +422,30 @@ require(["bootstrap-slider.js"], function()
 			})
 			.data('slider');
 
+		function tick()
+		{
+			if( ytplayer.getPlayerState() == 1 /* playing */)
+			{
+				var sec = ytplayer.getCurrentTime();
+				console.log('currentTime',sec);
+				var dist = secToMeters(sec);
+
+				console.log(dist);		
+				var pos = getPointAlongLine(marathonRoute, dist);
+				map.graphics.clear();
+				map.graphics.add( new Graphic(pos,markerSymbol));
+				var centerPos = new Point(
+					pos.x + map.extent.getWidth() * 0.20, 
+					pos.y - map.extent.getHeight() * 0.10, pos.spatialReference);
+				map.centerAt(centerPos);
+
+				$('#distance-field').val( format_distance( dist ) );
+
+				// falta actualizar el slider
+				slider.setValue( dist / 100);
+				
+			}
+		}
 		window.setInterval(tick,1000);
 	});
 
